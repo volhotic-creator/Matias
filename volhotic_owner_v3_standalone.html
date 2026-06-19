@@ -247,23 +247,20 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
   margin-left: var(--sidebar-w);
   height: 100vh; height: 100dvh;
   overflow-y: scroll; overflow-x: hidden;
-  scroll-snap-type: y proximity;
-  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  overscroll-behavior: none;
+  overscroll-behavior-y: none;
 }
 #wrap::-webkit-scrollbar { display: none; }
 
 .slide {
   min-height: 100vh; min-height: 100dvh;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
   display: flex; align-items: center; justify-content: center;
   padding: 64px 52px 72px;
   position: relative;
   border-bottom: 1px solid var(--line);
-  /* contain content vertically */
   box-sizing: border-box;
 }
 .slide-inner {
@@ -1653,7 +1650,8 @@ const rm       = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let cur = 0;
 
 function goTo(idx) {
-  slides[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const target = slides[idx];
+  wrap.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
   document.getElementById('sidebar').classList.remove('open');
 }
 
@@ -1709,30 +1707,6 @@ window.addEventListener('keydown', ev => {
   else if (ev.key === 'End')  { ev.preventDefault(); goTo(slides.length - 1); }
 });
 
-/* ── Mac trackpad: smooth slide snap on wheel ── */
-let wheelLock = false;
-let wheelAcc  = 0;
-let wheelT    = null;
-wrap.addEventListener('wheel', ev => {
-  // let natural scroll happen; only snap after momentum settles
-  clearTimeout(wheelT);
-  wheelAcc += ev.deltaY;
-  wheelT = setTimeout(() => {
-    if (!wheelLock) {
-      const THRESH = 30;
-      if (wheelAcc > THRESH) {
-        wheelLock = true;
-        goTo(Math.min(cur + 1, slides.length - 1));
-        setTimeout(() => { wheelLock = false; }, 700);
-      } else if (wheelAcc < -THRESH) {
-        wheelLock = true;
-        goTo(Math.max(cur - 1, 0));
-        setTimeout(() => { wheelLock = false; }, 700);
-      }
-    }
-    wheelAcc = 0;
-  }, 80);
-}, { passive: true });
 
 /* ── Tilt effect on cards ── */
 if (!rm && window.matchMedia('(pointer:fine)').matches) {
