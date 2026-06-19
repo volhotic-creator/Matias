@@ -43,6 +43,36 @@ body{font-family:var(--body);color:var(--white);-webkit-font-smoothing:antialias
 /* ─── Canvas starfield ─── */
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
 
+/* ─── Video backgrounds ─── */
+.vid-bg{
+  position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none;
+}
+.vid-bg video{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  min-width:100%;min-height:100%;
+  width:auto;height:auto;
+  object-fit:cover;
+}
+.vid-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(5,5,8,.72) 0%,
+    rgba(5,5,8,.55) 40%,
+    rgba(5,5,8,.72) 80%,
+    rgba(5,5,8,.92) 100%
+  );
+}
+/* Vignette lateral */
+.vid-bg::before{
+  content:'';position:absolute;inset:0;z-index:1;
+  background:radial-gradient(ellipse at center, transparent 30%, rgba(5,5,8,.65) 100%);
+}
+/* Asegurar que el contenido quede sobre el video */
+.slide.has-video .inner{position:relative;z-index:2;}
+.slide.has-video .scroll-cue{z-index:2;}
+
 /* ─── Progress bar ─── */
 #progress{
   position:fixed;top:0;left:0;height:2px;width:0%;
@@ -404,7 +434,12 @@ p.lead b,p.lead strong{color:var(--white);font-weight:600;}
 <div id="wrap">
 
   <!-- ─── SLIDE 1: HERO ─── -->
-  <section class="slide" id="s1">
+  <section class="slide has-video" id="s1">
+    <div class="vid-bg">
+      <video autoplay muted loop playsinline preload="auto">
+        <source src="train1.mp4" type="video/mp4">
+      </video>
+    </div>
     <div class="inner">
       <div class="brand">VOLHOTIC · AUTOPARTES</div>
       <h1 class="display">6.200&nbsp;SKU.<br>Un sistema.<br>Una&nbsp;decisión.</h1>
@@ -613,7 +648,12 @@ p.lead b,p.lead strong{color:var(--white);font-weight:600;}
   </section>
 
   <!-- ─── SLIDE 7: LA MAGNITUD ─── -->
-  <section class="slide" id="s7">
+  <section class="slide has-video" id="s7">
+    <div class="vid-bg">
+      <video autoplay muted loop playsinline preload="auto">
+        <source src="train2.mp4" type="video/mp4">
+      </video>
+    </div>
     <div class="inner">
       <div class="eyebrow"><span class="idx">07</span>&nbsp;· El tamaño de la oportunidad</div>
       <h2 class="display">6.200 SKU esperando.</h2>
