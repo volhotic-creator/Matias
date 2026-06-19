@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volhotic — Owner Brief v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050508;
+  --surface:rgba(255,255,255,.032);
+  --surface2:rgba(255,255,255,.06);
+  --blue:#4d8aff;
+  --blue-soft:rgba(77,138,255,.13);
+  --blue-line:rgba(77,138,255,.32);
+  --blue-glow:rgba(77,138,255,.2);
+  --red:#e8351a;
+  --red-soft:rgba(232,53,26,.13);
+  --red-line:rgba(232,53,26,.38);
+  --red-glow:rgba(232,53,26,.25);
+  --green:#3ddc84;
+  --green-soft:rgba(61,220,132,.11);
+  --green-line:rgba(61,220,132,.35);
+  --amber:#f2ab5c;
+  --white:#f0f2f8;
+  --dim:#8a93a8;
+  --faint:#4a5268;
+  --line:rgba(255,255,255,.065);
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --display:'Bebas Neue',sans-serif;
+  --body:'Inter',sans-serif;
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  --ease-quart:cubic-bezier(.25,1,.5,1);
+  --ease-expo:cubic-bezier(.16,1,.3,1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);}
+body{font-family:var(--body);color:var(--white);-webkit-font-smoothing:antialiased;}
+
+/* ─── Global video background ─── */
+#vid-global{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+#vid-global video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:.18;}
+#vid-global .noise{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.4;}
+
+/* ─── Progress ─── */
+#progress{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--red),var(--blue));z-index:100;box-shadow:0 0 12px var(--red-glow);transition:width .1s linear;}
+
+/* ─── Statusbar ─── */
+#statusbar{
+  position:fixed;top:20px;left:24px;z-index:50;
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint);
+  background:rgba(5,5,8,.75);backdrop-filter:blur(14px);
+  border:1px solid var(--line);border-radius:24px;padding:7px 16px 7px 12px;
+  text-transform:uppercase;
+  opacity:0;transform:translateY(-8px);
+  animation:fadeIn .6s var(--ease-quart) .2s forwards;
+}
+#statusbar .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2.2s ease infinite;flex-shrink:0;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,132,.5);}70%{box-shadow:0 0 0 6px rgba(61,220,132,0);}100%{box-shadow:0 0 0 0 rgba(61,220,132,0);}}
+#statusbar b{color:var(--white);font-weight:600;}
+
+/* ─── Nav ─── */
+#nav{position:fixed;bottom:24px;right:24px;z-index:50;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;transform:translateY(8px);animation:fadeIn .6s var(--ease-quart) .3s forwards;}
+@keyframes fadeIn{to{opacity:1;transform:none;}}
+.nbtn{width:46px;height:46px;border-radius:6px;border:1px solid var(--line);background:rgba(5,5,8,.8);backdrop-filter:blur(10px);color:var(--dim);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s var(--ease-out);}
+.nbtn:hover{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 0 18px var(--blue-glow);}
+.nbtn:active{transform:scale(.93);}
+.nbtn:disabled{opacity:.2;cursor:default;}
+.nbtn:disabled:hover{background:rgba(5,5,8,.8);color:var(--dim);border-color:var(--line);box-shadow:none;}
+#ctr{font-family:var(--mono);font-size:12px;color:var(--faint);background:rgba(5,5,8,.75);backdrop-filter:blur(10px);padding:7px 13px;border:1px solid var(--line);border-radius:6px;letter-spacing:.05em;transition:border-color .3s,box-shadow .3s;}
+#ctr.bump{border-color:var(--blue-line);box-shadow:0 0 0 3px var(--blue-soft);}
+#ctr b{color:var(--blue);font-weight:700;}
+
+/* ─── Scroll wrap ─── */
+#wrap{height:100vh;height:100dvh;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y proximity;scrollbar-width:none;position:relative;z-index:1;}
+#wrap::-webkit-scrollbar{display:none;}
+
+/* ─── Slides ─── */
+.slide{min-height:100vh;min-height:100dvh;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;padding:76px 36px;position:relative;border-bottom:1px solid var(--line);}
+.inner{max-width:720px;width:100%;}
+
+/* ─── Entrance ─── */
+.slide .inner>*{opacity:0;transform:translateY(16px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);}
+.slide.in .inner>*{opacity:1;transform:none;}
+.slide .inner>*:nth-child(1){transition-delay:.03s;}
+.slide .inner>*:nth-child(2){transition-delay:.1s;}
+.slide .inner>*:nth-child(3){transition-delay:.18s;}
+.slide .inner>*:nth-child(4){transition-delay:.27s;}
+.slide .inner>*:nth-child(5){transition-delay:.36s;}
+
+/* ─── Per-slide overlays ─── */
+.slide::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;}
+#s1::before{background:linear-gradient(160deg,rgba(5,5,8,.82) 0%,rgba(5,5,8,.6) 50%,rgba(5,5,8,.9) 100%);}
+#s2::before{background:rgba(5,5,8,.78);}
+#s3::before{background:linear-gradient(to bottom,rgba(5,5,8,.8),rgba(5,5,8,.7),rgba(5,5,8,.88));}
+#s4::before{background:rgba(5,5,8,.82);}
+#s5::before{background:rgba(5,5,8,.78);}
+#s6::before{background:linear-gradient(to bottom,rgba(5,5,8,.75),rgba(5,5,8,.88));}
+#s7::before{background:rgba(5,5,8,.8);}
+#s8::before{background:linear-gradient(to bottom,rgba(5,5,8,.78),rgba(5,5,8,.95));}
+.slide .inner{position:relative;z-index:2;}
+.slide .scroll-cue{z-index:2;}
+
+/* ─── Typography ─── */
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--blue);text-transform:uppercase;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:12px;opacity:0;transform:translateX(-14px) !important;}
+.slide.in .eyebrow{opacity:1;transform:translateX(0) !important;}
+.eyebrow::before{content:'';width:0;height:2px;background:linear-gradient(90deg,var(--blue),transparent);display:inline-block;transition:width .5s var(--ease-quart) .2s;}
+.slide.in .eyebrow::before{width:24px;}
+.eyebrow .idx{color:var(--faint);}
+
+h1.d{font-family:var(--display);font-size:clamp(60px,13vw,120px);line-height:.93;letter-spacing:.01em;margin-bottom:22px;color:var(--white);filter:blur(8px);transition:filter .7s var(--ease-out)!important;}
+h2.d{font-family:var(--display);font-size:clamp(38px,7.5vw,66px);line-height:1.04;margin-bottom:20px;color:var(--white);filter:blur(8px);transition:filter .7s var(--ease-out)!important;}
+.slide.in h1.d,.slide.in h2.d{filter:blur(0);}
+
+p.lead{font-size:clamp(16px,2.2vw,18px);line-height:1.78;color:var(--dim);margin-bottom:16px;}
+p.lead:last-child{margin-bottom:0;}
+p.lead b{color:var(--white);font-weight:600;}
+
+/* ─── Glass panel ─── */
+.glass{position:relative;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.03);backdrop-filter:blur(18px);padding:30px 26px 26px;margin-top:24px;transition:border-color .3s,box-shadow .3s;}
+.glass::before{content:'';position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid var(--blue);border-left:2px solid var(--blue);border-radius:10px 0 0 0;}
+.glass::after{content:'';position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;border-bottom:2px solid var(--blue);border-right:2px solid var(--blue);border-radius:0 0 10px 0;}
+.glass:hover{border-color:rgba(77,138,255,.2);box-shadow:0 20px 50px -18px rgba(77,138,255,.15);}
+.glass.red-corner::before,.glass.red-corner::after{border-color:var(--red);}
+.glass.red-corner:hover{border-color:rgba(232,53,26,.22);box-shadow:0 20px 50px -18px rgba(232,53,26,.15);}
+.gtag{position:absolute;top:-11px;left:20px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--blue);text-transform:uppercase;font-weight:700;}
+.gtag.red{color:var(--red);}
+
+/* ─── Scroll cue ─── */
+.scroll-cue{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.18em;display:flex;flex-direction:column;align-items:center;gap:7px;opacity:0;animation:fadeIn .8s ease 1.2s forwards;}
+.scroll-cue .bar{width:1px;height:28px;background:linear-gradient(to bottom,var(--blue),transparent);animation:barpulse 2s ease infinite;}
+@keyframes barpulse{0%,100%{opacity:.2;}50%{opacity:.9;}}
+
+/* ─── Rail ─── */
+.rail{display:flex;align-items:flex-start;margin-top:32px;}
+.rn-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;flex-shrink:0;}
+.rn{width:13px;height:13px;border-radius:50%;background:var(--bg);border:2px solid var(--faint);transition:transform .4s var(--ease-quart);}
+.rn-wrap.done .rn{background:var(--blue);border-color:var(--blue);opacity:.5;}
+.rn-wrap.active .rn{background:var(--green);border-color:var(--green);box-shadow:0 0 0 5px var(--green-soft);animation:rglow 2.8s ease infinite;}
+.slide.in .rn-wrap.active .rn{transform:scale(1.15);}
+.rn-wrap.next .rn{border-style:dashed;border-color:var(--blue-line);}
+@keyframes rglow{0%,100%{box-shadow:0 0 0 5px var(--green-soft);}50%{box-shadow:0 0 0 10px rgba(61,220,132,.06);}}
+.rc{flex:1 1 28px;height:0;border-top:2px solid var(--line);margin:5.5px 10px 0;max-width:64px;transform-origin:left;transform:scaleX(0);transition:transform .6s var(--ease-quart) .35s;}
+.slide.in .rc{transform:scaleX(1);}
+.rc.f{border-top-color:var(--blue-line);}
+.rl{margin-top:9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+.rt{font-family:var(--display);font-size:18px;color:var(--dim);margin-top:2px;}
+.rd{display:none;font-size:13.5px;color:var(--dim);margin-top:7px;max-width:148px;line-height:1.5;}
+.rn-wrap.active .rl{color:var(--green);}
+.rn-wrap.active .rt{color:var(--white);}
+.rail.lg{justify-content:center;margin-top:30px;}
+.rail.lg .rn{width:18px;height:18px;}
+.rail.lg .rc{margin-top:8px;flex:1 1 32px;}
+.rail.lg .rt{font-size:24px;}
+.rail.lg .rd{display:block;}
+
+/* ─── Hero stat ─── */
+.hstat{position:relative;overflow:hidden;margin:8px 0 6px;}
+.hstat .over{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;margin-bottom:6px;}
+.hstat .big{font-family:var(--display);font-size:clamp(80px,17vw,148px);line-height:.87;color:var(--blue);display:block;}
+.hstat .big.gr{color:var(--green);}
+.hstat .unit{font-size:14.5px;color:var(--dim);margin-top:5px;display:block;}
+.sweep{position:absolute;inset:0;background:linear-gradient(100deg,transparent,rgba(77,138,255,.28) 50%,transparent);transform:translateX(-130%);pointer-events:none;}
+.sweep.go{transition:transform .9s var(--ease-out);transform:translateX(130%);}
+
+/* ─── Compare ─── */
+.compare{display:flex;align-items:stretch;gap:10px;margin-top:20px;flex-wrap:wrap;}
+.cc{flex:1 1 190px;border-radius:8px;padding:20px 18px;opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-quart);}
+.slide.in .cc{opacity:1;transform:none;}
+.cc.before{background:var(--surface);border:1px solid var(--line);transition-delay:.05s;}
+.cc.after{background:var(--green-soft);border:1px solid var(--green-line);transition-delay:.2s;}
+.cc:hover{transform:translateY(-3px)!important;}
+.cc .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:8px;}
+.cc.after .lbl{color:var(--green);}
+.cc .num{font-family:var(--display);font-size:clamp(32px,6.5vw,48px);color:var(--dim);line-height:1;}
+.cc.after .num{color:var(--green);}
+.cc .sub{font-size:13.5px;color:var(--faint);margin-top:5px;}
+.carr{display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:var(--green);opacity:0;transform:scale(.6);transition:opacity .4s ease .4s,transform .4s var(--ease-quart) .4s;}
+.slide.in .carr{opacity:1;transform:scale(1);}
+.carr svg{animation:nudge 1.8s ease infinite;}
+@keyframes nudge{0%,100%{transform:translateX(0);}50%{transform:translateX(4px);}}
+
+/* ─── Stat duo ─── */
+.sduo{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
+.sb{flex:1 1 150px;border-radius:8px;padding:18px 16px;border:1px solid var(--line);background:var(--surface);opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-quart);}
+.slide.in .sb{opacity:1;transform:none;}
+.sb:nth-child(1){transition-delay:.05s;}
+.sb:nth-child(2){transition-delay:.17s;}
+.sb.hi{background:var(--green-soft);border-color:var(--green-line);}
+.sb .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:7px;}
+.sb.hi .lbl{color:var(--green);}
+.sb .val{font-family:var(--display);font-size:clamp(28px,5.5vw,44px);color:var(--dim);line-height:1;}
+.sb.hi .val{color:var(--green);}
+.sb .sub{font-size:13px;color:var(--faint);margin-top:4px;}
+
+/* ─── Team grid ─── */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px;}
+.tcard{border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.03);backdrop-filter:blur(14px);padding:22px 20px;opacity:0;transform:translateY(10px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-quart);}
+.slide.in .tcard:nth-of-type(1){opacity:1;transform:none;transition-delay:.08s;}
+.slide.in .tcard:nth-of-type(2){opacity:1;transform:none;transition-delay:.22s;}
+.tcard:hover{border-color:rgba(77,138,255,.18);box-shadow:0 14px 36px -14px rgba(77,138,255,.12);}
+.av{width:48px;height:48px;border-radius:7px;border:2px solid var(--blue);background:var(--blue-soft);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:18px;color:var(--blue);margin-bottom:14px;}
+.cn{font-family:var(--display);font-size:20px;color:var(--white);margin-bottom:3px;}
+.cr{font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:.08em;font-weight:700;text-transform:uppercase;margin-bottom:14px;}
+.cspec{display:flex;flex-direction:column;gap:7px;border-top:1px solid var(--line);padding-top:12px;}
+.cspec .row{display:flex;gap:8px;align-items:baseline;}
+.cspec .k{font-family:var(--mono);font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;flex:0 0 64px;font-weight:700;}
+.cspec .v{font-size:13.5px;color:var(--dim);line-height:1.45;}
+.cspec .v b{color:var(--white);font-weight:600;}
+
+/* ─── Checklist ─── */
+.cklist{margin-top:26px;display:flex;flex-direction:column;gap:14px;}
+.chk{display:flex;gap:14px;align-items:flex-start;opacity:0;transform:translateX(-12px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-quart);}
+.slide.in .chk{opacity:1;transform:none;}
+.chk:nth-child(1){transition-delay:.05s;}
+.chk:nth-child(2){transition-delay:.17s;}
+.chk:nth-child(3){transition-delay:.29s;}
+.chk:nth-child(4){transition-delay:.41s;}
+.chk .dot{width:9px;height:9px;border-radius:2px;background:var(--blue);margin-top:6px;flex-shrink:0;}
+.chk.done .dot{width:16px;height:16px;margin-top:3px;border-radius:4px;background:var(--green);display:flex;align-items:center;justify-content:center;}
+.chk.done .dot::after{content:'✓';font-size:9px;font-weight:800;color:var(--bg);}
+.chk.done .txt{color:var(--faint);}
+.chk.next .dot{border:2px dashed var(--blue-line);background:transparent;animation:npulse 2.4s ease infinite;}
+@keyframes npulse{0%,100%{box-shadow:0 0 0 0 rgba(77,138,255,.2);}50%{box-shadow:0 0 0 6px rgba(77,138,255,0);}}
+.chk .txt{font-size:17px;color:var(--dim);line-height:1.65;}
+.chk .txt b{color:var(--white);font-weight:600;}
+.closing{margin-top:40px;font-family:var(--display);font-size:clamp(26px,5vw,40px);color:var(--white);line-height:1.15;}
+.footer{margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.1em;}
+.footer b{color:var(--blue);}
+
+/* ─── Spec list ─── */
+.speclist{margin-top:22px;border-top:1px solid var(--line);}
+.srow{display:flex;gap:18px;padding:13px 0;border-bottom:1px solid var(--line);align-items:baseline;flex-wrap:wrap;opacity:0;transform:translateX(-8px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-quart);}
+.slide.in .srow{opacity:1;transform:none;}
+.srow:nth-child(1){transition-delay:.08s;}
+.srow:nth-child(2){transition-delay:.17s;}
+.srow:nth-child(3){transition-delay:.26s;}
+.srow:nth-child(4){transition-delay:.35s;}
+.srow:hover{background:rgba(255,255,255,.018);}
+.srow .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;flex:0 0 110px;font-weight:700;}
+.srow .v{font-size:15.5px;color:var(--dim);line-height:1.55;flex:1 1 180px;}
+.srow .v b{color:var(--white);font-weight:600;}
+
+/* ══════════════════════════════════════════
+   PIPELINE INTERACTIVO — Slide 4
+══════════════════════════════════════════ */
+.pipeline-wrap{margin-top:28px;border-radius:10px;overflow:hidden;border:1px solid rgba(232,53,26,.18);background:#07060a;background-image:radial-gradient(rgba(255,255,255,.055) 1px,transparent 1px);background-size:20px 20px;padding:36px 20px 30px;position:relative;}
+.pipeline-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,53,26,.07),transparent 65%);pointer-events:none;}
+
+/* Step labels */
+.pip-steps{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:4px;}
+.pip-step-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-align:center;flex:1;}
+.pip-step-label.active{color:var(--red);}
+.pip-divider{width:1px;height:20px;background:var(--line);}
+
+/* Input section */
+.pip-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.pip-col{display:flex;flex-direction:column;align-items:center;gap:0;flex:1;}
+
+/* Input nodes */
+.pip-inputs{display:flex;flex-direction:column;gap:10px;width:100%;}
+.pip-input{
+  border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.035);
+  padding:10px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;
+  transition:border-color .25s,box-shadow .25s,transform .2s var(--ease-quart);
+  position:relative;overflow:hidden;
+}
+.pip-input:hover,.pip-input.open{border-color:var(--red-line);box-shadow:0 0 0 3px var(--red-soft);transform:translateX(3px);}
+.pip-input .icon{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pip-input.xlsx .icon{background:rgba(30,170,90,.13);border:1px solid rgba(30,170,90,.3);color:#1eaa5a;}
+.pip-input.png .icon{background:rgba(77,138,255,.12);border:1px solid var(--blue-line);color:var(--blue);}
+.pip-input .label{font-family:var(--mono);font-size:12px;color:var(--white);font-weight:600;letter-spacing:.03em;}
+.pip-input .sublabel{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:2px;}
+.pip-input .badge{margin-left:auto;font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:10px;font-weight:700;}
+.pip-input.xlsx .badge{background:rgba(30,170,90,.13);color:#1eaa5a;border:1px solid rgba(30,170,90,.25);}
+.pip-input.png .badge{background:var(--blue-soft);color:var(--blue);border:1px solid var(--blue-line);}
+
+/* Expandable detail */
+.pip-detail{max-height:0;overflow:hidden;transition:max-height .4s var(--ease-quart),opacity .3s ease;opacity:0;font-family:var(--mono);font-size:11px;color:var(--faint);padding:0 14px;border:1px solid transparent;border-top:none;border-radius:0 0 7px 7px;background:rgba(255,255,255,.02);line-height:1.7;}
+.pip-detail.open{max-height:120px;opacity:1;padding:10px 14px;border-color:var(--red-line);border-top:none;}
+.pip-detail code{color:var(--red);font-size:11px;}
+
+/* Connector arrows */
+.pip-connector{display:flex;flex-direction:column;align-items:center;gap:0;padding-top:8px;flex-shrink:0;}
+.pip-conn-line{width:1px;height:36px;background:linear-gradient(to bottom,var(--red-line),var(--blue-line));position:relative;}
+.pip-conn-line::before{content:'';position:absolute;left:50%;top:0%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:var(--red);box-shadow:0 0 8px 2px var(--red-glow);opacity:0;}
+.slide.in .pip-conn-line::before{animation:flow 2s ease infinite;}
+.slide.in .pip-conn-line.d1::before{animation-delay:.5s;}
+@keyframes flow{0%{top:0%;opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{top:100%;opacity:0;}}
+.pip-arrow{color:var(--blue-line);font-size:14px;line-height:1;}
+
+/* Process node */
+.pip-process{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  border:1px solid rgba(232,53,26,.3);border-radius:10px;
+  background:rgba(232,53,26,.06);padding:18px 20px;
+  position:relative;min-width:160px;text-align:center;
+  box-shadow:0 0 30px rgba(232,53,26,.08);
+  transition:box-shadow .3s,border-color .3s;
+}
+.pip-process:hover{border-color:rgba(232,53,26,.5);box-shadow:0 0 40px rgba(232,53,26,.14);}
+.pip-process .icon{width:48px;height:48px;border-radius:10px;background:rgba(232,53,26,.1);border:1px solid rgba(232,53,26,.3);display:flex;align-items:center;justify-content:center;animation:breathe 2.4s ease infinite;}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(232,53,26,.25);}50%{box-shadow:0 0 0 10px rgba(232,53,26,0);}}
+.pip-process .ptitle{font-family:var(--body);font-weight:700;font-size:14px;color:var(--white);}
+.pip-process .pcap{font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.4;}
+.pip-process .pstatus{font-family:var(--mono);font-size:10px;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-top:4px;}
+
+/* QA node */
+.pip-qa{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
+.pip-qa .qbox{width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--blue);}
+.pip-qa .qtitle{font-family:var(--body);font-weight:600;font-size:13px;color:var(--white);}
+.pip-qa .qcap{font-family:var(--mono);font-size:10.5px;color:var(--dim);}
+
+/* Output fork */
+.pip-fork{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;}
+.pip-fork-path{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.fork-tag{font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:3px;font-weight:700;letter-spacing:.08em;}
+.fork-tag.yes{color:var(--green);background:var(--green-soft);border:1px solid var(--green-line);}
+.fork-tag.no{color:var(--amber);background:rgba(242,171,92,.1);border:1px solid rgba(242,171,92,.3);}
+
+/* Output node */
+.pip-output{
+  display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
+  border:1px solid var(--green-line);border-radius:8px;background:var(--green-soft);
+  padding:12px 14px;min-width:130px;
+  animation:gopulse 2.6s ease infinite;
+}
+@keyframes gopulse{0%,100%{box-shadow:0 0 0 0 rgba(61,220,132,.2);}50%{box-shadow:0 0 0 8px rgba(61,220,132,0);}}
+.pip-output .otitle{font-family:var(--body);font-weight:700;font-size:13px;color:var(--white);}
+.pip-output .ocap{font-family:var(--mono);font-size:10px;color:var(--green);}
+.pip-output .ofile{font-family:var(--mono);font-size:10px;color:var(--green);padding:3px 8px;background:rgba(61,220,132,.12);border-radius:3px;border:1px solid var(--green-line);margin-top:2px;}
+
+/* Speed chip */
+.speed-chip{margin-top:20px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;}
+.schip{display:flex;align-items:center;gap:8px;border-radius:6px;padding:10px 16px;font-family:var(--mono);font-size:12px;}
+.schip.slow{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--faint);}
+.schip.fast{background:var(--green-soft);border:1px solid var(--green-line);color:var(--green);}
+.schip .arrow{font-size:16px;}
+.schip-divider{color:var(--faint);font-size:18px;}
+
+/* ─── Architecture diagram (slide 3) ─── */
+.arch{margin-top:26px;display:flex;flex-direction:column;gap:0;}
+.arch-layer{
+  display:flex;align-items:stretch;gap:8px;
+  opacity:0;transform:translateY(10px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-quart);
+}
+.slide.in .arch-layer{opacity:1;transform:none;}
+.arch-layer:nth-child(1){transition-delay:.08s;}
+.arch-layer:nth-child(3){transition-delay:.2s;}
+.arch-layer:nth-child(5){transition-delay:.32s;}
+.arch-layer:nth-child(7){transition-delay:.44s;}
+.arch-lbl{flex:0 0 80px;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:700;}
+.arch-nodes{flex:1;display:flex;gap:8px;flex-wrap:wrap;}
+.arch-node{
+  flex:1 1 120px;border-radius:7px;padding:12px 14px;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);
+  display:flex;align-items:center;gap:10px;
+  transition:border-color .25s,transform .25s var(--ease-quart);cursor:default;
+}
+.arch-node:hover{border-color:var(--blue-line);transform:translateY(-2px);}
+.arch-node.red{border-color:rgba(232,53,26,.18);}
+.arch-node.red:hover{border-color:var(--red-line);}
+.arch-node .ni{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.arch-node .ni.b{background:var(--blue-soft);color:var(--blue);}
+.arch-node .ni.r{background:var(--red-soft);color:var(--red);}
+.arch-node .ni.g{background:var(--green-soft);color:var(--green);}
+.arch-node .ni.w{background:var(--surface2);color:var(--dim);}
+.arch-node .ntxt .nt{font-size:13px;font-weight:600;color:var(--white);}
+.arch-node .ntxt .nc{font-family:var(--mono);font-size:10.5px;color:var(--faint);}
+.arch-conn{display:flex;align-items:center;justify-content:center;padding:2px 0;gap:8px;}
+.arch-conn-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);}
+.arch-conn .dot{width:5px;height:5px;border-radius:50%;background:var(--blue);opacity:.5;}
+
+/* ─── Responsive ─── */
+@media(min-width:900px){.slide{padding:84px 64px;}.inner{max-width:780px;}}
+@media(min-width:1280px){.inner{max-width:840px;}#s4 .inner{max-width:920px;}}
+@media(max-width:560px){
+  .slide{padding:58px 18px;}
+  .tgrid{grid-template-columns:1fr;}
+  .compare,.sduo{flex-direction:column;}
+  .pip-row{flex-direction:column;}
+  #statusbar{top:12px;left:12px;font-size:10px;padding:5px 11px 5px 9px;}
+  #nav{bottom:14px;right:14px;}
+  .nbtn{width:40px;height:40px;}
+  #ctr{font-size:11px;padding:6px 11px;}
+  .carr{transform:scale(1) rotate(90deg)!important;}
+}
+@media(hover:none){
+  .glass:hover,.tcard:hover,.arch-node:hover,.pip-input:hover{transform:none!important;box-shadow:none!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;}
+  .slide .inner>*,.arch-layer,.cc,.chk,.sb,.srow,.tcard{opacity:1!important;transform:none!important;filter:none!important;}
+  #statusbar,#nav,.scroll-cue{opacity:1!important;}
+  .eyebrow::before{width:24px!important;}
+  .rc{transform:scaleX(1)!important;}
+  .sweep{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- Global video background -->
+<div id="vid-global">
+  <video autoplay muted loop playsinline id="bgvid">
+    <source src="bg.mp4" type="video/mp4">
+  </video>
+  <div class="noise"></div>
+</div>
+
+<div id="progress"></div>
+
+<div id="statusbar">
+  <span class="dot"></span>
+  VOLHOTIC &nbsp;·&nbsp; <b>OWNER BRIEF</b>
+</div>
+
+<div id="nav">
+  <button class="nbtn" id="navUp" aria-label="Anterior">▲</button>
+  <div id="ctr" aria-live="polite"><b id="cnum">01</b> / 08</div>
+  <button class="nbtn" id="navDown" aria-label="Siguiente">▼</button>
+</div>
+
+<div id="wrap">
+
+<!-- ═══ S1 · HERO ═══ -->
+<section class="slide" id="s1">
+  <div class="inner">
+    <div class="eyebrow"><span class="idx">01</span>&nbsp;· Volhotic · Autopartes</div>
+    <h1 class="d">6.200&nbsp;SKU.<br>Un sistema.<br>Una&nbsp;decisión.</h1>
+    <p class="lead">Resumen ejecutivo de la operación que construimos para escalar la publicación en Mercado Libre y monetizar el catálogo completo.</p>
+    <div class="rail">
+      <div class="rn-wrap done"><div class="rn"></div><div class="rl">01</div><div class="rt">Validar</div></div>
+      <div class="rc f"></div>
+      <div class="rn-wrap active"><div class="rn"></div><div class="rl">02</div><div class="rt">Escalar</div></div>
+      <div class="rc"></div>
+      <div class="rn-wrap next"><div class="rn"></div><div class="rl">03</div><div class="rt">Dominar</div></div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>SEGUIR</span><span class="bar"></span></div>
+</section>
+
+<!-- ═══ S2 · EL PROBLEMA ═══ -->
+<section class="slide" id="s2">
+  <div class="inner">
+    <div class="eyebrow"><span class="idx">02</span>&nbsp;· El cuello de botella</div>
+    <h2 class="d">Publicar a mano<br>no escala.</h2>
+    <p class="lead">Con el ritmo actual, cargar todo el catálogo tomaría más de <b>5 años</b>. No es una limitación del equipo — es una limitación del proceso.</p>
+    <div class="hstat">
+      <span class="over">Tiempo estimado // Catálogo completo a ritmo manual</span>
+      <span class="big count">5+</span>
+      <span class="unit">años &nbsp;·&nbsp; ~100 SKU/mes sobre 6.200 SKU totales</span>
+      <div class="sweep" data-scan></div>
+    </div>
+    <p class="lead" style="margin-top:18px;">La única forma de monetizar el catálogo es construir un sistema que publique por sí solo — y eso es exactamente lo que estamos haciendo.</p>
+  </div>
+</section>
+
+<!-- ═══ S3 · ARQUITECTURA ═══ -->
+<section class="slide" id="s3">
+  <div class="inner">
+    <div class="eyebrow"><span class="idx">03</span>&nbsp;· El músculo</div>
+    <h2 class="d">La arquitectura<br>del sistema.</h2>
+    <p class="lead">Cuatro capas conectadas. Cada una cumple una función precisa — juntas forman el sistema que publica sin intervención manual.</p>
+    <div class="arch">
+
+      <div class="arch-layer">
+        <div class="arch-lbl">Input</div>
+        <div class="arch-nodes">
+          <div class="arch-node">
+            <div class="ni w"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
+            <div class="ntxt"><div class="nt">Carpetas por marca</div><div class="nc">XLSX + PNG organizados</div></div>
+          </div>
+          <div class="arch-node">
+            <div class="ni w"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-6 4 4 5-8"/></svg></div>
+            <div class="ntxt"><div class="nt">Inventario 221</div><div class="nc">Stock verificado físico</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-conn"><div class="arch-conn-line"></div><div class="dot"></div><div class="arch-conn-line"></div></div>
+
+      <div class="arch-layer">
+        <div class="arch-lbl" style="color:var(--red);">Proceso</div>
+        <div class="arch-nodes">
+          <div class="arch-node red">
+            <div class="ni r"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M11 2l1.7 5.4L18 9l-5.3 1.6L11 16l-1.7-5.4L4 9l5.3-1.6L11 2z"/></svg></div>
+            <div class="ntxt"><div class="nt">Claude AI</div><div class="nc">Procesa · verifica · arma fichas</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-conn"><div class="arch-conn-line"></div><div class="dot"></div><div class="arch-conn-line"></div></div>
+
+      <div class="arch-layer">
+        <div class="arch-lbl">Control</div>
+        <div class="arch-nodes">
+          <div class="arch-node">
+            <div class="ni b"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg></div>
+            <div class="ntxt"><div class="nt">QA automático</div><div class="nc">Ficha completa y correcta</div></div>
+          </div>
+          <div class="arch-node">
+            <div class="ni b"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 6h6a4 4 0 0 1 4 4v0M7 18h6a4 4 0 0 0 4-4v0"/></svg></div>
+            <div class="ntxt"><div class="nt">n8n Workflow</div><div class="nc">Orquesta y automatiza</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-conn"><div class="arch-conn-line"></div><div class="dot" style="background:var(--green)"></div><div class="arch-conn-line"></div></div>
+
+      <div class="arch-layer">
+        <div class="arch-lbl" style="color:var(--green);">Output</div>
+        <div class="arch-nodes">
+          <div class="arch-node" style="border-color:var(--green-line);background:var(--green-soft);">
+            <div class="ni g"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.2"/></svg></div>
+            <div class="ntxt"><div class="nt" style="color:var(--green)">Publicación masiva ML</div><div class="nc">Catálogo vivo en Mercado Libre</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S4 · PIPELINE INTERACTIVO ═══ -->
+<section class="slide" id="s4">
+  <div class="inner">
+    <div class="eyebrow"><span class="idx">04</span>&nbsp;· El pipeline</div>
+    <h2 class="d">De XLSX y fotos<br>a publicación masiva.</h2>
+    <p class="lead">Tocá cada entrada para ver qué contiene. Así se arma cada pack que el sistema convierte en fichas listas para ML.</p>
+
+    <div class="pipeline-wrap">
+      <div class="gtag red">SYS // ML.PUBLISHER</div>
+
+      <!-- Inputs -->
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+
+        <!-- Left: inputs -->
+        <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:0;">
+          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px;">Pack de entrada</div>
+          <div class="pip-inputs">
+            <div class="pip-input xlsx" id="pi-xlsx" onclick="toggleDetail('xlsx')">
+              <div class="icon">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+              </div>
+              <div>
+                <div class="label">inventario.xlsx</div>
+                <div class="sublabel">Datos por SKU · precios · stock</div>
+              </div>
+              <span class="badge">XLSX</span>
+            </div>
+            <div class="pip-detail" id="pd-xlsx">
+              Campos: <code>SKU · descripción · marca · precio · stock · compatibilidad</code><br>
+              Fuente: Inventario 221 — verificado físicamente contra depósito.
+            </div>
+
+            <div class="pip-input png" id="pi-png" onclick="toggleDetail('png')" style="margin-top:8px;">
+              <div class="icon">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+              </div>
+              <div>
+                <div class="label">fotos_marca/</div>
+                <div class="sublabel">Imágenes de producto por SKU</div>
+              </div>
+              <span class="badge">PNG</span>
+            </div>
+            <div class="pip-detail" id="pd-png">
+              Carpeta por marca: <code>BILSTEIN/ · VICTOR_REINZ/ · ELRING/</code><br>
+              Naming: <code>SKU_001_front.png · SKU_001_detail.png</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: process -->
+        <div style="display:flex;flex-direction:column;align-items:center;padding-top:28px;gap:0;flex-shrink:0;">
+          <div class="pip-conn-line"></div>
+          <div class="pip-process">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M11 2l1.7 5.4L18 9l-5.3 1.6L11 16l-1.7-5.4L4 9l5.3-1.6L11 2z"/><path d="M18 13.5l.9 2.6L21.5 17l-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z"/></svg>
+            </div>
+            <div class="ptitle">Claude AI</div>
+            <div class="pcap">Lee · verifica · redacta<br>cada ficha de producto</div>
+            <div class="pstatus">● procesando</div>
+          </div>
+          <div class="pip-conn-line d1"></div>
+          <div class="pip-qa">
+            <div class="qbox">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <div class="qtitle">Control QA</div>
+            <div class="qcap">¿Ficha completa?</div>
+          </div>
+        </div>
+
+        <!-- Right: output -->
+        <div style="flex:1;min-width:160px;display:flex;flex-direction:column;gap:0;padding-top:28px;">
+          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px;">Salida</div>
+          <div class="pip-fork">
+            <div class="pip-fork-path">
+              <span class="fork-tag yes">SÍ</span>
+              <div class="pip-output">
+                <div class="otitle">n8n publica</div>
+                <div class="ocap">Sube a Mercado Libre</div>
+                <div class="ofile">pub_masiva.json</div>
+              </div>
+            </div>
+            <div class="pip-fork-path">
+              <span class="fork-tag no">NO</span>
+              <div style="border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.03);padding:12px 14px;text-align:center;">
+                <div style="font-family:var(--body);font-weight:600;font-size:13px;color:var(--white);">Revisión</div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--dim);">Corrige y vuelve</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Speed comparison -->
+      <div class="speed-chip">
+        <div class="schip slow"><span class="arrow">🐢</span> Manual: ~100 SKU / mes</div>
+        <div class="schip-divider">→</div>
+        <div class="schip fast"><span class="arrow">⚡</span> Sistema: 582 SKU / 4 semanas</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S5 · EL EQUIPO ═══ -->
+<section class="slide" id="s5">
+  <div class="inner">
+    <div class="eyebrow"><span class="idx">05</span>&nbsp;· Quién lo ejecuta</div>
+    <h2 class="d">Nahuel&nbsp;+&nbsp;Francisco.</h2>
+    <p class="lead">Dos roles, un objetivo: dejar el sistema publicando solo.</p>
+    <div class="tgrid">
+      <div class="tcard">
+        <div class="av">N</div>
+        <div class="cn">Nahuel</div>
+        <div class="cr">Operador → Responsable del sistema</div>
+        <div class="cspec">
+          <div class="row"><span class="k">Hoy</span><span class="v">Ya publica en ML</span></div>
+          <div class="row"><span class="k">Próximo</span><span class="v">Opera el sistema de <b>publicación masiva</b></span></div>
+          <div class="row"><span class="k">Resultado</span><span class="v">El equipo deja de cargar a mano</span></div>
+        </div>
+      </div>
+      <div class="tcard">
+        <div class="av" style="font-size:15px;">FR</div>
+        <div class="cn">Francisco</div>
+        <div class="cr" style="color:var(--blue);">Capacidad externa · Suscripción</div>
+        <div class="cspec">
+          <div class="row"><span class="k">Origen</span><span class="v">Accenture · Mercado Libre</span></div>
+          <div class="row"><span class="k">Cadencia</span><span class="v"><b>Mar y Jue</b> — sesiones virtuales</span></div>
+          <div class="row"><span class="k">Modelo</span><span class="v">Pago mientras dura — <b>no es empleado</b></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S6 · PRIMER MOVIMIENTO ═══ -->
+<section class="slide" id="s6">
+  <div class="inner">
+    <div class="eyebrow"><span class="idx">06</span>&nbsp;· Primer movimiento</div>
+    <h2 class="d">582 SKU.<br>4 semanas.</h2>
+    <p class="lead">Arrancamos con <b>Bilstein, Victor Reinz y Elring</b> — stock verificado físicamente contra inventario.</p>
+    <div class="hstat">
+      <span class="over">Dataset // Primer lote</span>
+      <span class="big count">582</span>
+      <span class="unit">SKU &nbsp;·&nbsp; ~19.650 unidades en stock</span>
+      <div class="sweep" data-scan></div>
+    </div>
+    <div class="compare">
+      <div class="cc before">
+        <div class="lbl">A mano</div>
+        <div class="num">~6 meses</div>
+        <div class="sub">para publicar estas 582 SKU</div>
+      </div>
+      <div class="carr"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="cc after">
+        <div class="lbl">Con el sistema</div>
+        <div class="num">4 sem.</div>
+        <div class="sub">en producción en Mercado Libre</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S7 · LA OPORTUNIDAD ═══ -->
+<section class="slide" id="s7">
+  <div class="inner">
+    <div class="eyebrow"><span class="idx">07</span>&nbsp;· La oportunidad</div>
+    <h2 class="d">6.200 SKU<br>esperando.</h2>
+    <div class="hstat">
+      <span class="over">Inventario total // Catálogo completo</span>
+      <span class="big gr count">6.200</span>
+      <span class="unit">SKU &nbsp;·&nbsp; ~96.000 unidades en inventario</span>
+      <div class="sweep" data-scan></div>
+    </div>
+    <div class="sduo" style="margin-top:22px;">
+      <div class="sb">
+        <div class="lbl">Sin el sistema</div>
+        <div class="val">5+ años</div>
+        <div class="sub">a mano, a ritmo actual</div>
+      </div>
+      <div class="sb hi">
+        <div class="lbl">Con el sistema</div>
+        <div class="val">~6 meses</div>
+        <div class="sub">para publicar el catálogo completo</div>
+      </div>
+    </div>
+    <div class="rail lg" style="margin-top:32px;">
+      <div class="rn-wrap done"><div class="rn"></div><div class="rl">N.01</div><div class="rt">Validar</div><div class="rd">MVP mostró que funciona.</div></div>
+      <div class="rc f"></div>
+      <div class="rn-wrap active"><div class="rn"></div><div class="rl">N.02</div><div class="rt">Escalar</div><div class="rd">Nahuel + Francisco. 582 SKU.</div></div>
+      <div class="rc"></div>
+      <div class="rn-wrap next"><div class="rn"></div><div class="rl">N.03</div><div class="rt">Dominar</div><div class="rd">Las 6.200 SKU del catálogo.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S8 · CIERRE ═══ -->
+<section class="slide" id="s8">
+  <div class="inner">
+    <div class="eyebrow"><span class="idx">08</span>&nbsp;· Próximos pasos</div>
+    <h2 class="d">Dos movimientos.<br>Una semana.</h2>
+    <div class="cklist">
+      <div class="chk done"><span class="dot"></span><span class="txt">Marco de trabajo con <b>Francisco</b> cerrado.</span></div>
+      <div class="chk next"><span class="dot"></span><span class="txt"><b>Nahuel</b> arranca sesiones fijas martes y jueves.</span></div>
+      <div class="chk"><span class="dot"></span><span class="txt">Primer lote — <b>Bilstein, Victor Reinz y Elring</b> — publicando en 4 semanas.</span></div>
+      <div class="chk"><span class="dot"></span><span class="txt">Primera tanda validada → vamos por el <b>catálogo completo</b>.</span></div>
+    </div>
+    <div class="closing">El catálogo ya existe.<br>El sistema lo pone a vender.</div>
+    <div class="footer"><b>Hotic.</b> powered · Owner Brief · 2025</div>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+/* ── Pipeline interactivo ── */
+function toggleDetail(type){
+  const detail = document.getElementById('pd-'+type);
+  const input  = document.getElementById('pi-'+type);
+  const isOpen = detail.classList.contains('open');
+  // close all
+  document.querySelectorAll('.pip-detail').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('.pip-input').forEach(i=>i.classList.remove('open'));
+  if(!isOpen){
+    detail.classList.add('open');
+    input.classList.add('open');
+  }
+}
+
+/* ── Slide engine ── */
+const wrap    = document.getElementById('wrap');
+const prog    = document.getElementById('progress');
+const cnum    = document.getElementById('cnum');
+const ctr     = document.getElementById('ctr');
+const slides  = document.querySelectorAll('.slide');
+const navUp   = document.getElementById('navUp');
+const navDown = document.getElementById('navDown');
+const rm      = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let   cur     = 1;
+
+function updateNav(){
+  navUp.disabled   = cur <= 1;
+  navDown.disabled = cur >= slides.length;
+}
+function bump(){
+  ctr.classList.add('bump');
+  clearTimeout(bump._t);
+  bump._t = setTimeout(()=>ctr.classList.remove('bump'),420);
+}
+function countUp(el){
+  const raw    = el.textContent.trim().replace(/\./g,'');
+  const target = parseInt(raw.replace(/[^\d]/g,''),10);
+  if(!target) return;
+  if(rm){ el.textContent = target.toLocaleString('es-AR'); return; }
+  const dur = 1200, t0 = performance.now();
+  (function step(now){
+    const p = Math.min((now-t0)/dur,1);
+    el.textContent = Math.round(target*(1-Math.pow(1-p,3))).toLocaleString('es-AR');
+    if(p<1) requestAnimationFrame(step);
+  })(t0);
+}
+
+wrap.addEventListener('scroll',()=>{
+  const max = wrap.scrollHeight - wrap.clientHeight;
+  prog.style.width = (max>0?(wrap.scrollTop/max)*100:0)+'%';
+},{passive:true});
+
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const idx = Array.from(slides).indexOf(e.target)+1;
+    if(idx!==cur){ cur=idx; bump(); }
+    cnum.textContent = String(cur).padStart(2,'0');
+    updateNav();
+    if(!e.target.classList.contains('in')){
+      e.target.classList.add('in');
+      e.target.querySelectorAll('.count').forEach(countUp);
+      e.target.querySelectorAll('[data-scan]').forEach(el=>requestAnimationFrame(()=>el.classList.add('go')));
+    }
+  });
+},{threshold:.38, root:wrap});
+
+slides.forEach(s=>io.observe(s));
+updateNav();
+
+navUp.addEventListener('click',()=>{ if(cur>1) slides[cur-2].scrollIntoView({behavior:'smooth',block:'start'}); });
+navDown.addEventListener('click',()=>{ if(cur<slides.length) slides[cur].scrollIntoView({behavior:'smooth',block:'start'}); });
+window.addEventListener('keydown',ev=>{
+  if(['ArrowDown','PageDown',' '].includes(ev.key)){ev.preventDefault();navDown.click();}
+  else if(['ArrowUp','PageUp'].includes(ev.key)){ev.preventDefault();navUp.click();}
+  else if(ev.key==='Home'){ev.preventDefault();slides[0].scrollIntoView({behavior:'smooth'});}
+  else if(ev.key==='End'){ev.preventDefault();slides[slides.length-1].scrollIntoView({behavior:'smooth'});}
+});
+
+/* ── 3D tilt on glass panels (fine pointer) ── */
+if(!rm && window.matchMedia('(pointer:fine)').matches){
+  document.querySelectorAll('.glass,.tcard').forEach(m=>{
+    let r=null;
+    m.addEventListener('mousemove',ev=>{
+      const b=m.getBoundingClientRect();
+      const px=(ev.clientX-b.left)/b.width-.5;
+      const py=(ev.clientY-b.top)/b.height-.5;
+      if(r) return;
+      r=requestAnimationFrame(()=>{
+        m.style.transform=`perspective(900px) rotateX(${(-py*2.8).toFixed(2)}deg) rotateY(${(px*2.8).toFixed(2)}deg)`;
+        r=null;
+      });
+    });
+    m.addEventListener('mouseleave',()=>{ m.style.transform=''; });
+  });
+}
+</script>
+</body>
+</html>
