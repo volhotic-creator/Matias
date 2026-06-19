@@ -24,9 +24,9 @@
   --green-soft:rgba(61,220,132,.11);
   --green-line:rgba(61,220,132,.35);
   --amber:#f2ab5c;
-  --white:#f0f2f8;
-  --dim:#8a93a8;
-  --faint:#4a5268;
+  --white:#f2f5fc;
+  --dim:#a0aabf;
+  --faint:#545e76;
   --line:rgba(255,255,255,.065);
   --mono:'JetBrains Mono',ui-monospace,monospace;
   --display:'Bebas Neue',sans-serif;
@@ -112,11 +112,11 @@ body{font-family:var(--body);color:var(--white);-webkit-font-smoothing:antialias
 .slide.in .eyebrow::before{width:24px;}
 .eyebrow .idx{color:var(--faint);}
 
-h1.d{font-family:var(--display);font-size:clamp(60px,13vw,120px);line-height:.93;letter-spacing:.01em;margin-bottom:22px;color:var(--white);filter:blur(8px);transition:filter .7s var(--ease-out)!important;}
-h2.d{font-family:var(--display);font-size:clamp(38px,7.5vw,66px);line-height:1.04;margin-bottom:20px;color:var(--white);filter:blur(8px);transition:filter .7s var(--ease-out)!important;}
+h1.d{font-family:var(--display);font-size:clamp(62px,12vw,116px);line-height:.93;letter-spacing:.015em;margin-bottom:26px;color:var(--white);filter:blur(8px);transition:filter .7s var(--ease-out)!important;}
+h2.d{font-family:var(--display);font-size:clamp(40px,7vw,64px);line-height:1.04;margin-bottom:22px;color:var(--white);filter:blur(8px);transition:filter .7s var(--ease-out)!important;}
 .slide.in h1.d,.slide.in h2.d{filter:blur(0);}
 
-p.lead{font-size:clamp(16px,2.2vw,18px);line-height:1.78;color:var(--dim);margin-bottom:16px;}
+p.lead{font-size:clamp(17px,2.3vw,20px);line-height:1.85;color:var(--dim);margin-bottom:18px;font-weight:400;letter-spacing:-.01em;}
 p.lead:last-child{margin-bottom:0;}
 p.lead b{color:var(--white);font-weight:600;}
 
@@ -209,7 +209,7 @@ p.lead b{color:var(--white);font-weight:600;}
 .cspec{display:flex;flex-direction:column;gap:7px;border-top:1px solid var(--line);padding-top:12px;}
 .cspec .row{display:flex;gap:8px;align-items:baseline;}
 .cspec .k{font-family:var(--mono);font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;flex:0 0 64px;font-weight:700;}
-.cspec .v{font-size:13.5px;color:var(--dim);line-height:1.45;}
+.cspec .v{font-size:14.5px;color:var(--dim);line-height:1.5;}
 .cspec .v b{color:var(--white);font-weight:600;}
 
 /* ─── Checklist ─── */
@@ -226,9 +226,9 @@ p.lead b{color:var(--white);font-weight:600;}
 .chk.done .txt{color:var(--faint);}
 .chk.next .dot{border:2px dashed var(--blue-line);background:transparent;animation:npulse 2.4s ease infinite;}
 @keyframes npulse{0%,100%{box-shadow:0 0 0 0 rgba(77,138,255,.2);}50%{box-shadow:0 0 0 6px rgba(77,138,255,0);}}
-.chk .txt{font-size:17px;color:var(--dim);line-height:1.65;}
+.chk .txt{font-size:19px;color:var(--dim);line-height:1.7;}
 .chk .txt b{color:var(--white);font-weight:600;}
-.closing{margin-top:40px;font-family:var(--display);font-size:clamp(26px,5vw,40px);color:var(--white);line-height:1.15;}
+.closing{margin-top:44px;font-family:var(--display);font-size:clamp(28px,5.5vw,44px);color:var(--white);line-height:1.15;}
 .footer{margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.1em;}
 .footer b{color:var(--blue);}
 
@@ -416,7 +416,7 @@ p.lead b{color:var(--white);font-weight:600;}
 
 <div id="statusbar">
   <span class="dot"></span>
-  VOLHOTIC &nbsp;·&nbsp; <b>OWNER BRIEF</b>
+  VOLHOTIC &nbsp;·&nbsp; <b>LA LOCOMOTORA</b>
 </div>
 
 <div id="nav">
@@ -432,7 +432,7 @@ p.lead b{color:var(--white);font-weight:600;}
   <div class="inner">
     <div class="eyebrow"><span class="idx">01</span>&nbsp;· Volhotic · Autopartes</div>
     <h1 class="d">6.200&nbsp;SKU.<br>Un sistema.<br>Una&nbsp;decisión.</h1>
-    <p class="lead">Resumen ejecutivo de la operación que construimos para escalar la publicación en Mercado Libre y monetizar el catálogo completo.</p>
+    <p class="lead">La locomotora está lista. Este es el resumen de cómo ponemos el catálogo completo a correr en Mercado Libre.</p>
     <div class="rail">
       <div class="rn-wrap done"><div class="rn"></div><div class="rl">01</div><div class="rt">Validar</div></div>
       <div class="rc f"></div>
@@ -463,9 +463,9 @@ p.lead b{color:var(--white);font-weight:600;}
 <!-- ═══ S3 · ARQUITECTURA ═══ -->
 <section class="slide" id="s3">
   <div class="inner">
-    <div class="eyebrow"><span class="idx">03</span>&nbsp;· El músculo</div>
-    <h2 class="d">La arquitectura<br>del sistema.</h2>
-    <p class="lead">Cuatro capas conectadas. Cada una cumple una función precisa — juntas forman el sistema que publica sin intervención manual.</p>
+    <div class="eyebrow"><span class="idx">03</span>&nbsp;· El motor</div>
+    <h2 class="d">La locomotora<br>del negocio.</h2>
+    <p class="lead">Cuatro vagones conectados. Cada uno tiene su función — juntos forman el tren que publica solo, sin que nadie tenga que empujar.</p>
     <div class="arch">
 
       <div class="arch-layer">
@@ -622,9 +622,9 @@ p.lead b{color:var(--white);font-weight:600;}
 
       <!-- Speed comparison -->
       <div class="speed-chip">
-        <div class="schip slow"><span class="arrow">🐢</span> Manual: ~100 SKU / mes</div>
+        <div class="schip slow"><span class="arrow">🚶</span> A mano: ~100 SKU / mes</div>
         <div class="schip-divider">→</div>
-        <div class="schip fast"><span class="arrow">⚡</span> Sistema: 582 SKU / 4 semanas</div>
+        <div class="schip fast"><span class="arrow">🚂</span> La locomotora: 582 SKU / 4 sem.</div>
       </div>
     </div>
   </div>
@@ -733,8 +733,8 @@ p.lead b{color:var(--white);font-weight:600;}
       <div class="chk"><span class="dot"></span><span class="txt">Primer lote — <b>Bilstein, Victor Reinz y Elring</b> — publicando en 4 semanas.</span></div>
       <div class="chk"><span class="dot"></span><span class="txt">Primera tanda validada → vamos por el <b>catálogo completo</b>.</span></div>
     </div>
-    <div class="closing">El catálogo ya existe.<br>El sistema lo pone a vender.</div>
-    <div class="footer"><b>Hotic.</b> powered · Owner Brief · 2025</div>
+    <div class="closing">El catálogo ya existe.<br>La locomotora ya está en marcha.</div>
+    <div class="footer"><b>Hotic.</b> powered · Owner Brief · 2025 &nbsp;🚂</div>
   </div>
 </section>
 
