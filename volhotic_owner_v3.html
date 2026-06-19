@@ -255,13 +255,14 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 #wrap::-webkit-scrollbar { display: none; }
 
 .slide {
-  min-height: 100vh; min-height: 100dvh;
+  height: 100vh; height: 100dvh;
   scroll-snap-align: start;
   display: flex; align-items: center; justify-content: center;
-  padding: 64px 52px 72px;
+  padding: 56px 52px 40px;
   position: relative;
   border-bottom: 1px solid var(--line);
   box-sizing: border-box;
+  overflow: hidden;
 }
 .slide-inner {
   width: 100%; max-width: 900px;
@@ -318,21 +319,21 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 ───────────────────────────────────────── */
 .h-display {
   font-family: var(--display);
-  font-size: clamp(72px, 11vw, 120px);
-  line-height: .92; letter-spacing: .012em;
+  font-size: clamp(56px, 9vw, 96px);
+  line-height: .93; letter-spacing: .012em;
   color: var(--white);
   filter: blur(10px);
   transition: filter .65s var(--ease-out) !important;
-  margin-bottom: 28px;
+  margin-bottom: 18px;
 }
 .h-section {
   font-family: var(--display);
-  font-size: clamp(54px, 8vw, 88px);
-  line-height: .96; letter-spacing: .01em;
+  font-size: clamp(44px, 6.5vw, 72px);
+  line-height: .97; letter-spacing: .01em;
   color: var(--white);
   filter: blur(10px);
   transition: filter .65s var(--ease-out) !important;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 .slide.in .h-display, .slide.in .h-section { filter: blur(0); }
 
@@ -347,10 +348,10 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
    BODY TEXT
 ───────────────────────────────────────── */
 .lead {
-  font-size: clamp(18px, 2.2vw, 22px);
-  line-height: 1.75; color: var(--dim);
+  font-size: clamp(16px, 1.8vw, 19px);
+  line-height: 1.65; color: var(--dim);
   max-width: 680px; font-weight: 400; letter-spacing: -.01em;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 .lead b { color: var(--white); font-weight: 600; }
 .lead:last-child { margin-bottom: 0; }
@@ -365,12 +366,12 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
    STAT BLOCKS
 ───────────────────────────────────────── */
 .stat-row {
-  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 28px;
+  display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;
 }
 .stat-block {
-  flex: 1 1 180px;
+  flex: 1 1 160px;
   border: 1px solid var(--line); border-radius: 10px;
-  background: var(--surface); padding: 24px 22px;
+  background: var(--surface); padding: 18px 18px;
   position: relative; overflow: hidden;
   transition: border-color .25s, transform .25s var(--ease-out);
 }
@@ -386,7 +387,7 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 }
 .stat-block.hi .s-label { color: var(--green); }
 .stat-block .s-val {
-  font-family: var(--display); font-size: clamp(42px, 7vw, 68px);
+  font-family: var(--display); font-size: clamp(34px, 5vw, 52px);
   line-height: .9; color: var(--dim);
 }
 .stat-block.hi .s-val { color: var(--green); }
@@ -397,19 +398,19 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 
 /* hero stat */
 .hero-stat {
-  position: relative; overflow: hidden; margin: 12px 0 8px;
+  position: relative; overflow: hidden; margin: 10px 0 6px;
 }
 .hero-stat .hs-label {
-  font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
-  color: var(--faint); text-transform: uppercase; margin-bottom: 8px; display: block;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .16em;
+  color: var(--faint); text-transform: uppercase; margin-bottom: 4px; display: block;
 }
 .hero-stat .hs-big {
-  font-family: var(--display); font-size: clamp(96px, 18vw, 168px);
-  line-height: .82; color: var(--blue); display: block; letter-spacing: .01em;
+  font-family: var(--display); font-size: clamp(72px, 13vw, 120px);
+  line-height: .84; color: var(--blue); display: block; letter-spacing: .01em;
 }
 .hero-stat .hs-big.go { color: var(--green); }
 .hero-stat .hs-unit {
-  font-size: 15px; color: var(--muted); margin-top: 10px; display: block;
+  font-size: 13px; color: var(--muted); margin-top: 6px; display: block;
   font-family: var(--mono); letter-spacing: .05em;
 }
 .sweep {
@@ -423,10 +424,10 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
    COMPARE CARDS
 ───────────────────────────────────────── */
 .compare {
-  display: flex; align-items: center; gap: 12px; margin-top: 28px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap;
 }
 .cc {
-  flex: 1 1 180px; border-radius: 10px; padding: 22px 20px;
+  flex: 1 1 160px; border-radius: 10px; padding: 16px 18px;
   opacity: 0; transform: translateY(10px);
   transition: opacity .5s var(--ease-out), transform .5s var(--ease-out);
 }
@@ -446,7 +447,7 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 }
 .cc.after .cc-lbl { color: var(--green); }
 .cc .cc-val {
-  font-family: var(--display); font-size: clamp(36px, 6vw, 54px);
+  font-family: var(--display); font-size: clamp(30px, 4.5vw, 44px);
   line-height: .92; color: var(--dim);
 }
 .cc.after .cc-val { color: var(--green); }
@@ -461,12 +462,12 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
    PIPELINE (S4)
 ───────────────────────────────────────── */
 .pipeline-wrap {
-  margin-top: 32px;
+  margin-top: 16px;
   border: 1px solid var(--red-l); border-radius: 12px;
   background: #07060b;
   background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
   background-size: 22px 22px;
-  padding: 40px 28px 32px; position: relative; overflow: hidden;
+  padding: 28px 20px 20px; position: relative; overflow: hidden;
 }
 .pipeline-wrap::before {
   content: ''; position: absolute; inset: 0;
@@ -646,7 +647,7 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 /* ─────────────────────────────────────────
    ARCHITECTURE (S3)
 ───────────────────────────────────────── */
-.arch { margin-top: 30px; display: flex; flex-direction: column; gap: 0; }
+.arch { margin-top: 16px; display: flex; flex-direction: column; gap: 0; }
 .arch-layer {
   display: flex; align-items: stretch; gap: 10px;
   opacity: 0; transform: translateY(12px);
@@ -697,10 +698,10 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 /* ─────────────────────────────────────────
    TEAM CARDS (S5)
 ───────────────────────────────────────── */
-.tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+.tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
 .tcard {
   border: 1px solid var(--line); border-radius: 12px;
-  background: var(--surface); backdrop-filter: blur(16px); padding: 24px 22px;
+  background: var(--surface); backdrop-filter: blur(16px); padding: 18px 18px;
   opacity: 0; transform: translateY(12px);
   transition: opacity .5s var(--ease-out), transform .5s var(--ease-out),
               border-color .22s, box-shadow .22s;
@@ -727,7 +728,7 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 /* ─────────────────────────────────────────
    CHECKLIST (S8)
 ───────────────────────────────────────── */
-.cklist { display: flex; flex-direction: column; gap: 16px; margin-top: 28px; }
+.cklist { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
 .chk {
   display: flex; align-items: flex-start; gap: 16px;
   opacity: 0; transform: translateX(-14px);
@@ -747,7 +748,7 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 .chk.next .chk-dot  { border: 2px dashed var(--blue-l); animation: npulse 2.4s ease infinite; }
 .chk.todo .chk-dot  { background: var(--surface2); border: 1px solid var(--line2); }
 @keyframes npulse{0%,100%{box-shadow:0 0 0 0 rgba(77,138,255,.3);}50%{box-shadow:0 0 0 6px rgba(77,138,255,0);}}
-.chk-text { font-size: 20px; color: var(--dim); line-height: 1.65; }
+.chk-text { font-size: 17px; color: var(--dim); line-height: 1.55; }
 .chk-text b { color: var(--white); font-weight: 600; }
 .chk.done .chk-text { color: var(--faint); }
 
@@ -789,7 +790,7 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 /* ─────────────────────────────────────────
    WEEK TIMELINE (S7)
 ───────────────────────────────────────── */
-.weeks { display: flex; flex-direction: column; gap: 0; margin-top: 32px; }
+.weeks { display: flex; flex-direction: column; gap: 0; margin-top: 16px; }
 .week-row {
   display: flex; align-items: stretch; gap: 0;
   opacity: 0; transform: translateX(-16px);
@@ -824,17 +825,17 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 .week-row:last-child .week-spine-line { display: none; }
 
 .week-body {
-  flex: 1; padding: 0 0 28px 8px;
+  flex: 1; padding: 0 0 18px 8px;
 }
 .week-label {
-  font-family: var(--mono); font-size: 10px; letter-spacing: .18em;
-  text-transform: uppercase; color: var(--faint); font-weight: 700; margin-bottom: 6px;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--faint); font-weight: 700; margin-bottom: 3px;
 }
 .week-row.act  .week-label { color: var(--green); }
 .week-row.done .week-label { color: var(--blue); opacity: .7; }
 .week-title {
-  font-family: var(--display); font-size: clamp(28px, 4.5vw, 42px);
-  color: var(--white); line-height: 1; margin-bottom: 8px;
+  font-family: var(--display); font-size: clamp(22px, 3.5vw, 34px);
+  color: var(--white); line-height: 1; margin-bottom: 5px;
 }
 .week-row.done .week-title { color: var(--dim); }
 .week-items {
@@ -842,7 +843,7 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 }
 .week-item {
   display: flex; align-items: baseline; gap: 10px;
-  font-size: 15px; color: var(--dim); line-height: 1.5;
+  font-size: 13.5px; color: var(--dim); line-height: 1.45;
 }
 .week-item::before {
   content: '—'; font-family: var(--mono); font-size: 11px;
@@ -856,8 +857,8 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
    CLOSING
 ───────────────────────────────────────── */
 .closing {
-  margin-top: 48px;
-  font-family: var(--display); font-size: clamp(32px, 5.5vw, 52px);
+  margin-top: 24px;
+  font-family: var(--display); font-size: clamp(28px, 4.5vw, 44px);
   color: var(--white); line-height: 1.12;
 }
 .footer-mono {
@@ -896,7 +897,7 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
   #sidebar.open { transform: translateX(0); width: var(--sidebar-expanded); box-shadow: 4px 0 24px rgba(0,0,0,.4); }
   #wrap, #topbar, #progress { margin-left: 0; left: 0; }
   #topbar { padding-left: 52px; }
-  .slide { padding: 64px 28px 64px; }
+  .slide { padding: 56px 24px 36px; }
   .tgrid { grid-template-columns: 1fr; }
   .pip-flow { grid-template-columns: 1fr; }
   .pip-arrow-col { flex-direction: row; padding: 10px 0; justify-content: center; }
