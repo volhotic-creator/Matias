@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volhotic — Owner Brief · Escalar ML</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050508;
+  --surface:rgba(255,255,255,.028);
+  --surface2:rgba(255,255,255,.055);
+  --blue:#4d8aff;
+  --blue-soft:rgba(77,138,255,.14);
+  --blue-line:rgba(77,138,255,.35);
+  --blue-glow:rgba(77,138,255,.22);
+  --pink:#ea4b71;
+  --pink-soft:rgba(234,75,113,.13);
+  --pink-line:rgba(234,75,113,.38);
+  --green:#3ddc84;
+  --green-soft:rgba(61,220,132,.12);
+  --green-line:rgba(61,220,132,.38);
+  --amber:#f2ab5c;
+  --white:#f8f9ff;
+  --dim:#9ba3b8;
+  --faint:#555f78;
+  --line:rgba(255,255,255,.07);
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --display:'Bebas Neue',sans-serif;
+  --body:'Inter',sans-serif;
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  --ease-out-quart:cubic-bezier(.25,1,.5,1);
+  --ease-out-expo:cubic-bezier(.16,1,.3,1);
+  --ease-in-out:cubic-bezier(.77,0,.175,1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);}
+body{font-family:var(--body);color:var(--white);-webkit-font-smoothing:antialiased;font-weight:400;position:relative;}
+
+/* ─── Canvas starfield ─── */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ─── Progress bar ─── */
+#progress{
+  position:fixed;top:0;left:0;height:2px;width:0%;
+  background:linear-gradient(90deg,var(--blue),var(--pink));
+  z-index:100;box-shadow:0 0 14px var(--blue-glow);
+  transition:width .12s linear;
+}
+
+/* ─── Status bar ─── */
+#statusbar{
+  position:fixed;top:20px;left:24px;z-index:50;
+  display:flex;align-items:center;gap:9px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--faint);
+  background:rgba(5,5,8,.7);backdrop-filter:blur(12px);
+  border:1px solid var(--line);border-radius:24px;padding:7px 16px 7px 12px;
+  text-transform:uppercase;
+  opacity:0;transform:translateY(-8px);
+  animation:fadeSlideDown .7s var(--ease-out-quart) .2s forwards;
+}
+#statusbar .dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 0 0 rgba(61,220,132,.5);animation:livePulse 2.2s ease infinite;}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(61,220,132,.45);}70%{box-shadow:0 0 0 7px rgba(61,220,132,0);}100%{box-shadow:0 0 0 0 rgba(61,220,132,0);}}
+#statusbar span{color:var(--dim);}
+#statusbar b{color:var(--white);font-weight:600;}
+
+/* ─── Nav cluster ─── */
+#navcluster{
+  position:fixed;bottom:24px;right:24px;z-index:50;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  opacity:0;transform:translateY(8px);
+  animation:fadeSlideDown .7s var(--ease-out-quart) .3s forwards;
+}
+.navbtn{
+  width:48px;height:48px;border-radius:6px;
+  border:1px solid var(--line);background:rgba(5,5,8,.8);backdrop-filter:blur(10px);
+  color:var(--dim);font-size:14px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s var(--ease-out);flex-shrink:0;
+}
+.navbtn:hover,.navbtn:focus-visible{background:var(--blue);color:#fff;border-color:var(--blue);outline:none;box-shadow:0 0 20px var(--blue-glow);}
+.navbtn:active{transform:scale(.94);}
+.navbtn:disabled{opacity:.25;cursor:default;}
+.navbtn:disabled:hover{background:rgba(5,5,8,.8);color:var(--dim);border-color:var(--line);box-shadow:none;}
+#counter{
+  font-family:var(--mono);font-size:13px;color:var(--faint);
+  background:rgba(5,5,8,.75);backdrop-filter:blur(10px);
+  padding:8px 14px;border:1px solid var(--line);border-radius:6px;letter-spacing:.05em;
+  transition:border-color .3s,box-shadow .3s;
+}
+#counter.bump{border-color:var(--blue-line);box-shadow:0 0 0 3px var(--blue-soft);}
+#counter b{color:var(--blue);font-weight:700;}
+
+@keyframes fadeSlideDown{to{opacity:1;transform:translateY(0);}}
+
+/* ─── Scroll container ─── */
+#wrap{
+  height:100vh;height:100dvh;overflow-y:auto;overflow-x:hidden;
+  scroll-snap-type:y proximity;scrollbar-width:none;
+  position:relative;z-index:1;
+}
+#wrap::-webkit-scrollbar{display:none;}
+
+/* ─── Slides ─── */
+.slide{
+  min-height:100vh;min-height:100dvh;scroll-snap-align:start;
+  display:flex;align-items:center;justify-content:center;
+  padding:72px 32px;position:relative;
+  border-bottom:1px solid var(--line);
+}
+.inner{max-width:700px;width:100%;}
+
+/* Entrance animations */
+.slide .inner>*{opacity:0;transform:translateY(18px);transition:opacity .65s var(--ease-out),transform .65s var(--ease-out);}
+.slide.in-view .inner>*{opacity:1;transform:translateY(0);}
+.slide .inner>*:nth-child(1){transition-delay:.03s;}
+.slide .inner>*:nth-child(2){transition-delay:.1s;}
+.slide .inner>*:nth-child(3){transition-delay:.18s;}
+.slide .inner>*:nth-child(4){transition-delay:.27s;}
+.slide .inner>*:nth-child(5){transition-delay:.36s;}
+.slide .inner>*:nth-child(6){transition-delay:.45s;}
+
+/* Eyebrow */
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--blue);
+  text-transform:uppercase;font-weight:700;margin-bottom:20px;
+  display:flex;align-items:center;gap:12px;
+  transform:translateX(-16px) !important;
+}
+.slide.in-view .eyebrow{transform:translateX(0) !important;}
+.eyebrow::before{content:'';width:0;height:2px;background:linear-gradient(90deg,var(--blue),transparent);display:inline-block;transition:width .5s var(--ease-out-quart) .2s;}
+.slide.in-view .eyebrow::before{width:28px;}
+.eyebrow .idx{color:var(--faint);}
+
+/* Display headings */
+h1.display,h2.display{
+  font-family:var(--display);font-weight:400;color:var(--white);
+  filter:blur(8px);
+  transition:opacity .75s var(--ease-out),transform .75s var(--ease-out),filter .75s var(--ease-out)!important;
+}
+.slide.in-view h1.display,.slide.in-view h2.display{filter:blur(0);}
+h1.display{font-size:clamp(56px,13vw,118px);line-height:.95;letter-spacing:.01em;margin-bottom:24px;}
+h2.display{font-size:clamp(38px,8vw,68px);line-height:1.05;margin-bottom:24px;}
+
+p.lead{font-size:clamp(17px,2.4vw,19px);line-height:1.75;color:var(--dim);margin-bottom:18px;font-weight:400;}
+p.lead:last-child{margin-bottom:0;}
+p.lead b,p.lead strong{color:var(--white);font-weight:600;}
+
+/* ─── Glass module ─── */
+.module{
+  position:relative;
+  border:1px solid rgba(255,255,255,.08);border-radius:10px;
+  background:rgba(255,255,255,.028);backdrop-filter:blur(16px);
+  padding:32px 28px 28px;margin-top:28px;
+  transition:border-color .3s,box-shadow .3s;
+  transform:translateY(16px) scale(.98) !important;
+}
+.slide.in-view .module{transform:translateY(0) scale(1) !important;transition:opacity .6s var(--ease-out),transform .55s var(--ease-out-quart),border-color .3s,box-shadow .3s !important;}
+.module:hover{border-color:rgba(77,138,255,.22);box-shadow:0 24px 56px -20px rgba(77,138,255,.18),inset 0 1px 0 rgba(255,255,255,.05);}
+.module::before{content:'';position:absolute;top:-1px;left:-1px;width:22px;height:22px;border-top:2px solid var(--blue);border-left:2px solid var(--blue);border-radius:10px 0 0 0;}
+.module::after{content:'';position:absolute;bottom:-1px;right:-1px;width:22px;height:22px;border-bottom:2px solid var(--blue);border-right:2px solid var(--blue);border-radius:0 0 10px 0;}
+.module-tag{position:absolute;top:-12px;left:24px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--blue);text-transform:uppercase;font-weight:700;}
+
+/* ─── Rail ─── */
+.rail{display:flex;align-items:flex-start;justify-content:flex-start;margin-top:36px;width:100%;}
+.rail-node-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;flex-shrink:0;}
+.rail-node{width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--faint);flex-shrink:0;transition:transform .4s var(--ease-out-quart);}
+.rail-node-wrap.done .rail-node{background:var(--blue);border-color:var(--blue);opacity:.5;}
+.rail-node-wrap.active .rail-node{background:var(--green);border-color:var(--green);box-shadow:0 0 0 5px var(--green-soft);animation:railGlow 2.8s ease infinite;}
+.slide.in-view .rail-node-wrap.active .rail-node{transform:scale(1.15);}
+.rail-node-wrap.next .rail-node{border-style:dashed;border-color:var(--blue-line);}
+.rail-connector{flex:1 1 32px;height:0;border-top:2px solid var(--line);margin:6px 10px 0;max-width:72px;transform-origin:left center;transform:scaleX(0);transition:transform .65s var(--ease-out-quart) .35s;}
+.slide.in-view .rail-connector{transform:scaleX(1);}
+.rail-connector.filled{border-top-color:var(--blue-line);}
+.rail-label{margin-top:10px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+.rail-title{font-family:var(--display);font-size:19px;color:var(--dim);margin-top:3px;}
+.rail-node-wrap.active .rail-label{color:var(--green);}
+.rail-node-wrap.active .rail-title{color:var(--white);}
+.rail-desc{display:none;font-size:14px;color:var(--dim);margin-top:8px;max-width:150px;line-height:1.5;}
+@keyframes railGlow{0%,100%{box-shadow:0 0 0 5px var(--green-soft);}50%{box-shadow:0 0 0 10px rgba(61,220,132,.08);}}
+
+.rail.large{margin-top:36px;justify-content:center;}
+.rail.large .rail-node{width:20px;height:20px;}
+.rail.large .rail-connector{margin-top:9px;flex:1 1 36px;}
+.rail.large .rail-title{font-size:26px;margin-top:6px;}
+.rail.large .rail-desc{display:block;}
+
+/* ─── Scroll cue ─── */
+.scroll-cue{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.18em;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  opacity:0;animation:cueIn .8s ease 1.2s forwards;
+}
+@keyframes cueIn{to{opacity:1;}}
+.scroll-cue .bar{width:1px;height:32px;background:linear-gradient(to bottom,var(--blue),transparent);animation:barPulse 2s ease infinite;}
+@keyframes barPulse{0%,100%{opacity:.2;}50%{opacity:.9;}}
+
+/* ─── Hero stat ─── */
+.hero-stat{position:relative;overflow:hidden;margin:10px 0 8px;}
+.hero-stat .overline{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;margin-bottom:8px;}
+.hero-stat .big{font-family:var(--display);font-size:clamp(72px,16vw,144px);line-height:.88;color:var(--blue);display:block;}
+.hero-stat .big.green{color:var(--green);}
+.hero-stat .unit{font-size:15px;color:var(--dim);margin-top:6px;display:block;}
+.scan-sweep{position:absolute;inset:0;background:linear-gradient(100deg,transparent 0%,rgba(77,138,255,.3) 48%,transparent 100%);transform:translateX(-130%);pointer-events:none;}
+.scan-sweep.run{transition:transform .9s var(--ease-out);transform:translateX(130%);}
+
+/* ─── Compare cards ─── */
+.compare{display:flex;align-items:stretch;gap:12px;margin-top:24px;flex-wrap:wrap;}
+.ccard{flex:1 1 200px;min-width:200px;border-radius:8px;padding:22px 20px;opacity:0;transform:translateY(10px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out-quart);}
+.slide.in-view .ccard{opacity:1;transform:none;}
+.ccard.before{background:var(--surface);border:1px solid var(--line);transition-delay:.05s;}
+.ccard.after{background:var(--green-soft);border:1px solid var(--green-line);transition-delay:.2s;}
+.ccard:hover{transform:translateY(-4px)!important;}
+.ccard.after:hover{box-shadow:0 20px 40px -18px rgba(61,220,132,.4);}
+.ccard .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px;}
+.ccard.after .lbl{color:var(--green);}
+.ccard .big{font-family:var(--display);font-size:clamp(36px,7vw,52px);color:var(--dim);line-height:1;}
+.ccard.after .big{color:var(--green);}
+.ccard .sub{font-size:14px;color:var(--faint);margin-top:6px;line-height:1.5;}
+.compare-arrow{display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:var(--green);opacity:0;transform:scale(.6);transition:opacity .4s ease .4s,transform .4s var(--ease-out-quart) .4s;}
+.slide.in-view .compare-arrow{opacity:1;transform:scale(1);}
+.compare-arrow svg{animation:nudge 1.8s ease infinite;}
+@keyframes nudge{0%,100%{transform:translateX(0);}50%{transform:translateX(5px);}}
+
+/* ─── Mini flow ─── */
+.mini-flow{display:flex;align-items:flex-start;justify-content:center;margin-top:32px;flex-wrap:wrap;gap:0;}
+.mini-node{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;opacity:0;transform:translateY(10px) scale(.92);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out-quart);}
+.slide.in-view .mini-node:nth-of-type(1){opacity:1;transform:none;transition-delay:.1s;}
+.slide.in-view .mini-node:nth-of-type(3){opacity:1;transform:none;transition-delay:.32s;}
+.slide.in-view .mini-node:nth-of-type(5){opacity:1;transform:none;transition-delay:.54s;}
+.slide.in-view .mini-node:nth-of-type(7){opacity:1;transform:none;transition-delay:.76s;}
+.mini-box{width:52px;height:52px;border-radius:10px;background:var(--surface);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:var(--blue);transition:transform .3s var(--ease-out-quart),border-color .3s;}
+.mini-box.accent{border-color:var(--blue-line);background:var(--blue-soft);}
+.mini-box.live{border-color:var(--pink-line);background:var(--pink-soft);color:var(--pink);}
+.mini-node:hover .mini-box{transform:translateY(-3px);border-color:var(--blue-line);}
+.mini-label{font-family:var(--mono);font-size:12px;color:var(--dim);max-width:110px;line-height:1.4;}
+.mini-conn{flex:0 0 24px;height:0;border-top:2px dashed var(--blue-line);margin-top:25px;transform-origin:left;transform:scaleX(0);transition:transform .5s var(--ease-out-quart) .25s;}
+.slide.in-view .mini-conn{transform:scaleX(1);}
+
+/* ─── n8n canvas ─── */
+.canvas{
+  position:relative;padding:40px 20px 34px;border-radius:8px;
+  background-color:#070810;
+  background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);
+  background-size:22px 22px;overflow:hidden;
+  border:1px solid var(--line);
+}
+.nflow{display:flex;flex-direction:column;align-items:center;}
+.nconn{width:1px;height:28px;background:linear-gradient(to bottom,var(--pink-line),var(--line));position:relative;}
+.nconn::after{content:'';position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:var(--bg);border:2px solid var(--pink);}
+.nconn::before{content:'';position:absolute;left:50%;top:0%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:var(--pink);box-shadow:0 0 8px 2px var(--pink);opacity:0;}
+.slide.in-view .nconn::before{animation:flowDown 2.6s ease infinite;}
+.slide.in-view .nconn.d2::before{animation-delay:.9s;}
+.slide.in-view .nconn.d3::before{animation-delay:1.8s;}
+@keyframes flowDown{0%{top:0%;opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{top:100%;opacity:0;}}
+.nnode{display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;opacity:0;transform:translateY(14px) scale(.94);transition:opacity .55s var(--ease-out),transform .55s var(--ease-out-quart);}
+.slide.in-view .nnode{opacity:1;transform:none;}
+.nbox{width:58px;height:58px;border-radius:11px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:var(--blue);box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .3s var(--ease-out-quart),border-color .3s;}
+.nnode:hover .nbox{transform:translateY(-3px) scale(1.04);}
+.nbox.accent{border-color:var(--blue-line);background:var(--blue-soft);}
+.nbox.live{border-color:var(--pink-line);background:var(--pink-soft);color:var(--pink);animation:liveBreathe 2.4s ease infinite;}
+@keyframes liveBreathe{0%,100%{box-shadow:0 0 0 0 rgba(234,75,113,.25);}50%{box-shadow:0 0 0 10px rgba(234,75,113,0);}}
+.nbox .bolt-badge{position:absolute;top:-8px;left:-8px;width:20px;height:20px;border-radius:50%;background:var(--bg);border:1px solid var(--blue-line);display:flex;align-items:center;justify-content:center;color:var(--blue);}
+.ntitle{font-family:var(--body);font-weight:600;font-size:15px;color:var(--white);}
+.ncap{font-family:var(--mono);font-size:12px;color:var(--dim);max-width:200px;line-height:1.4;}
+.tools-link{width:1px;height:18px;background:repeating-linear-gradient(to bottom,var(--blue-line) 0 4px,transparent 4px 8px);}
+.tools-row{display:flex;gap:16px;margin-top:2px;flex-wrap:wrap;justify-content:center;}
+.tool-chip{display:flex;flex-direction:column;align-items:center;gap:7px;opacity:0;transform:translateY(8px);transition:opacity .45s var(--ease-out),transform .45s var(--ease-out-quart);}
+.slide.in-view .tool-chip{opacity:1;transform:none;}
+.tool-chip:nth-of-type(1){transition-delay:.15s;}
+.tool-chip:nth-of-type(2){transition-delay:.26s;}
+.tool-chip:nth-of-type(3){transition-delay:.37s;}
+.tbox{width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,.04);border:1px dashed var(--blue-line);display:flex;align-items:center;justify-content:center;color:var(--blue);transition:transform .25s var(--ease-out-quart);}
+.tool-chip:hover .tbox{transform:translateY(-2px) rotate(-4deg);}
+.tlabel{font-family:var(--mono);font-size:11.5px;color:var(--dim);max-width:80px;text-align:center;line-height:1.35;}
+.nfork{display:flex;gap:36px;margin-top:4px;flex-wrap:wrap;justify-content:center;}
+.nfork-path{display:flex;flex-direction:column;align-items:center;}
+.nfork-tag{font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:4px;margin-bottom:9px;letter-spacing:.08em;font-weight:700;}
+.nfork-tag.yes{color:var(--green);background:var(--green-soft);border:1px solid var(--green-line);}
+.nfork-tag.no{color:var(--amber);background:rgba(242,171,92,.1);border:1px solid rgba(242,171,92,.35);}
+
+/* ─── Two column team cards ─── */
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px;}
+@media(max-width:560px){.team-grid{grid-template-columns:1fr;}}
+.team-card{
+  border:1px solid rgba(255,255,255,.08);border-radius:10px;
+  background:rgba(255,255,255,.028);backdrop-filter:blur(12px);
+  padding:24px 22px;
+  opacity:0;transform:translateY(12px);transition:opacity .55s var(--ease-out),transform .5s var(--ease-out-quart);
+}
+.slide.in-view .team-card:nth-of-type(1){opacity:1;transform:none;transition-delay:.1s;}
+.slide.in-view .team-card:nth-of-type(2){opacity:1;transform:none;transition-delay:.24s;}
+.team-card:hover{border-color:rgba(77,138,255,.2);box-shadow:0 16px 40px -16px rgba(77,138,255,.15);}
+.avatar{width:52px;height:52px;border-radius:8px;border:2px solid var(--blue);background:var(--blue-soft);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:20px;color:var(--blue);margin-bottom:16px;}
+.card-name{font-family:var(--display);font-size:22px;color:var(--white);margin-bottom:4px;}
+.card-role{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.08em;font-weight:700;text-transform:uppercase;margin-bottom:16px;}
+.card-spec{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:14px;margin-top:2px;}
+.card-spec .row{display:flex;gap:10px;align-items:baseline;}
+.card-spec .k{font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;flex:0 0 72px;font-weight:700;}
+.card-spec .v{font-size:14px;color:var(--dim);line-height:1.45;}
+.card-spec .v b{color:var(--white);font-weight:600;}
+
+/* ─── Spec list ─── */
+.spec-list{margin-top:24px;border-top:1px solid var(--line);}
+.spec-row{
+  display:flex;gap:20px;padding:14px 0;border-bottom:1px solid var(--line);
+  align-items:baseline;flex-wrap:wrap;
+  opacity:0;transform:translateX(-10px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out-quart),background-color .2s;
+}
+.spec-row:hover{background-color:rgba(255,255,255,.02);}
+.slide.in-view .spec-row{opacity:1;transform:none;}
+.spec-row:nth-of-type(1){transition-delay:.1s;}
+.spec-row:nth-of-type(2){transition-delay:.19s;}
+.spec-row:nth-of-type(3){transition-delay:.28s;}
+.spec-row:nth-of-type(4){transition-delay:.37s;}
+.spec-row .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;flex:0 0 120px;font-weight:700;}
+.spec-row .v{font-size:16px;color:var(--dim);line-height:1.55;flex:1 1 200px;}
+.spec-row .v b{color:var(--white);font-weight:600;}
+
+/* ─── Checklist ─── */
+.checklist{margin-top:28px;display:flex;flex-direction:column;gap:16px;}
+.chk{display:flex;gap:16px;align-items:flex-start;opacity:0;transform:translateX(-14px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out-quart);}
+.slide.in-view .chk{opacity:1;transform:none;}
+.chk:nth-of-type(1){transition-delay:.06s;}
+.chk:nth-of-type(2){transition-delay:.18s;}
+.chk:nth-of-type(3){transition-delay:.3s;}
+.chk:nth-of-type(4){transition-delay:.42s;}
+.chk .dot{width:10px;height:10px;border-radius:3px;background:var(--blue);margin-top:7px;flex-shrink:0;}
+.chk.done .dot{width:18px;height:18px;margin-top:3px;border-radius:5px;background:var(--green);display:flex;align-items:center;justify-content:center;}
+.chk.done .dot::after{content:'✓';font-size:11px;font-weight:800;color:var(--bg);}
+.chk.done .txt{color:var(--faint);}
+.chk.next .dot{border:2px dashed var(--blue-line);background:transparent;animation:nextPulse 2.4s ease infinite;}
+@keyframes nextPulse{0%,100%{box-shadow:0 0 0 0 rgba(77,138,255,.25);}50%{box-shadow:0 0 0 7px rgba(77,138,255,0);}}
+.chk .txt{font-size:18px;color:var(--dim);line-height:1.65;}
+.chk .txt b{color:var(--white);font-weight:600;}
+
+/* ─── Closing ─── */
+.closing-line{margin-top:44px;font-family:var(--display);font-size:clamp(28px,5.5vw,42px);color:var(--white);line-height:1.15;}
+.footer-tag{margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.1em;}
+.footer-tag b{color:var(--blue);}
+
+/* ─── Stat duo ─── */
+.stat-duo{display:flex;gap:14px;margin-top:24px;flex-wrap:wrap;}
+.stat-box{flex:1 1 160px;border-radius:8px;padding:20px 18px;border:1px solid var(--line);background:var(--surface);opacity:0;transform:translateY(10px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out-quart);}
+.slide.in-view .stat-box{opacity:1;transform:none;}
+.stat-box:nth-of-type(1){transition-delay:.05s;}
+.stat-box:nth-of-type(2){transition-delay:.18s;}
+.stat-box.highlight{background:var(--green-soft);border-color:var(--green-line);}
+.stat-box .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:8px;}
+.stat-box.highlight .lbl{color:var(--green);}
+.stat-box .val{font-family:var(--display);font-size:clamp(32px,6vw,48px);color:var(--dim);line-height:1;}
+.stat-box.highlight .val{color:var(--green);}
+.stat-box .sub{font-size:13.5px;color:var(--faint);margin-top:5px;line-height:1.4;}
+
+/* ─── Slide 1 brand ─── */
+#s1 .brand{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--faint);text-transform:uppercase;margin-bottom:36px;}
+
+/* ─── Responsive ─── */
+@media(min-width:900px){.slide{padding:80px 60px;}.inner{max-width:760px;}}
+@media(min-width:1280px){.inner{max-width:820px;}#s4 .inner,#s7 .inner{max-width:880px;}}
+@media(max-width:560px){
+  .slide{padding:56px 20px;}
+  .compare{flex-direction:column;}
+  .canvas{padding:28px 10px 22px;}
+  .mini-flow{flex-direction:column;}
+  .mini-conn{flex:0 0 20px;width:0;height:20px;border-top:none;border-left:2px dashed var(--blue-line);margin:0;transform-origin:top;}
+  #statusbar{top:14px;left:14px;font-size:10px;padding:6px 12px 6px 10px;}
+  #navcluster{bottom:16px;right:16px;}
+  .navbtn{width:44px;height:44px;}
+  #counter{font-size:12px;padding:7px 12px;}
+  .compare-arrow svg{animation:nudgeV 1.8s ease infinite;}
+  @keyframes nudgeV{0%,100%{transform:translateY(0);}50%{transform:translateY(5px);}}
+}
+@media(hover:none){.module:hover,.ccard:hover,.mini-node:hover .mini-box,.nnode:hover .nbox,.team-card:hover{transform:none!important;box-shadow:none!important;}}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;}
+  .slide .inner>*{opacity:1!important;transform:none!important;filter:none!important;}
+  #statusbar,#navcluster,.scroll-cue{opacity:1!important;transform:none!important;}
+  .rail-connector,.mini-conn,.chk,.ccard,.compare-arrow,.nnode,.mini-node,.tool-chip,.team-card,.spec-row,.stat-box{opacity:1!important;transform:none!important;}
+  .eyebrow::before{width:28px!important;}
+  .scan-sweep{display:none;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+<div id="progress"></div>
+
+<div id="statusbar">
+  <span class="dot"></span>
+  VOLHOTIC &nbsp;·&nbsp; <b>OWNER BRIEF</b>
+</div>
+
+<div id="navcluster">
+  <button class="navbtn" id="navUp" aria-label="Anterior">▲</button>
+  <div id="counter" aria-live="polite"><b id="cnum">01</b> / 10</div>
+  <button class="navbtn" id="navDown" aria-label="Siguiente">▼</button>
+</div>
+
+<div id="wrap">
+
+  <!-- ─── SLIDE 1: HERO ─── -->
+  <section class="slide" id="s1">
+    <div class="inner">
+      <div class="brand">VOLHOTIC · AUTOPARTES</div>
+      <h1 class="display">6.200&nbsp;SKU.<br>Un sistema.<br>Una&nbsp;decisión.</h1>
+      <p class="lead">Resumen ejecutivo de la operación que estamos construyendo para escalar la publicación en Mercado Libre.</p>
+      <div class="rail">
+        <div class="rail-node-wrap done"><div class="rail-node"></div><div class="rail-label">01</div><div class="rail-title">Validar</div></div>
+        <div class="rail-connector filled"></div>
+        <div class="rail-node-wrap active"><div class="rail-node"></div><div class="rail-label">02</div><div class="rail-title">Escalar</div></div>
+        <div class="rail-connector"></div>
+        <div class="rail-node-wrap next"><div class="rail-node"></div><div class="rail-label">03</div><div class="rail-title">Dominar</div></div>
+      </div>
+    </div>
+    <div class="scroll-cue"><span>SEGUIR</span><span class="bar"></span></div>
+  </section>
+
+  <!-- ─── SLIDE 2: EL PROBLEMA ─── -->
+  <section class="slide" id="s2">
+    <div class="inner">
+      <div class="eyebrow"><span class="idx">02</span>&nbsp;· El cuello de botella</div>
+      <h2 class="display">Hoy, publicar a mano no escala.</h2>
+      <p class="lead">Con el ritmo actual, cargar todo el catálogo tomaría más de <b>5 años</b>. No es una limitación del equipo — es una limitación del proceso.</p>
+      <div class="hero-stat">
+        <span class="overline">TIEMPO A RITMO MANUAL // CATÁLOGO COMPLETO</span>
+        <span class="big count">5+</span>
+        <span class="unit">años&nbsp;·&nbsp;~100 SKU por mes sobre 6.200 SKU totales</span>
+        <div class="scan-sweep" data-scan></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SLIDE 3: LA SOLUCIÓN ─── -->
+  <section class="slide" id="s3">
+    <div class="inner">
+      <div class="eyebrow"><span class="idx">03</span>&nbsp;· La solución</div>
+      <h2 class="display">Un sistema que publica por nosotros.</h2>
+      <p class="lead">Construimos un pipeline que toma fotos, datos de fabricante e inventario, y arma y publica cada ficha en Mercado Libre — <b>sin intervención manual</b>.</p>
+      <div class="mini-flow">
+        <div class="mini-node">
+          <div class="mini-box">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+          </div>
+          <div class="mini-label">Carpeta de marca</div>
+        </div>
+        <div class="mini-conn"></div>
+        <div class="mini-node">
+          <div class="mini-box accent">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M11 2l1.7 5.4L18 9l-5.3 1.6L11 16l-1.7-5.4L4 9l5.3-1.6L11 2z"/><path d="M18 13.5l.9 2.6L21.5 17l-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z"/></svg>
+          </div>
+          <div class="mini-label">Claude procesa</div>
+        </div>
+        <div class="mini-conn"></div>
+        <div class="mini-node">
+          <div class="mini-box">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 6h6a4 4 0 0 1 4 4v0M7 18h6a4 4 0 0 0 4-4v0"/></svg>
+          </div>
+          <div class="mini-label">n8n conecta</div>
+        </div>
+        <div class="mini-conn"></div>
+        <div class="mini-node">
+          <div class="mini-box live">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.4"/></svg>
+          </div>
+          <div class="mini-label">Catálogo vivo en ML</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SLIDE 4: EL FLUJO ─── -->
+  <section class="slide" id="s4">
+    <div class="inner">
+      <div class="eyebrow"><span class="idx">04</span>&nbsp;· Cómo funciona</div>
+      <h2 class="display">El pipeline, paso a paso.</h2>
+      <p class="lead"><b>Claude</b> procesa los datos y arma cada ficha. <b>n8n</b> conecta todo y publica en Mercado Libre.</p>
+      <div class="module">
+        <span class="module-tag">SYS // PIPELINE · ML.PUB</span>
+        <div class="canvas">
+          <div class="nflow">
+            <div class="nnode">
+              <div class="nbox accent" style="position:relative;">
+                <div class="bolt-badge"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M13 2L3 14h7l-1 8 11-14h-7l1-6z"/></svg></div>
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+              </div>
+              <div class="ntitle">Carpeta de marca lista</div>
+              <div class="ncap">Fotos + datos cargados por marca</div>
+            </div>
+            <div class="nconn"></div>
+            <div class="nnode">
+              <div class="nbox">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M11 2l1.7 5.4L18 9l-5.3 1.6L11 16l-1.7-5.4L4 9l5.3-1.6L11 2z"/><path d="M18 13.5l.9 2.6L21.5 17l-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z"/></svg>
+              </div>
+              <div class="ntitle">Claude — Agente IA</div>
+              <div class="ncap">Procesa, verifica y arma cada ficha</div>
+            </div>
+            <div class="tools-link"></div>
+            <div class="tools-row">
+              <div class="tool-chip">
+                <div class="tbox"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+                <div class="tlabel">Catálogo fabricante</div>
+              </div>
+              <div class="tool-chip">
+                <div class="tbox"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-6 4 4 5-8"/></svg></div>
+                <div class="tlabel">Inventario stock</div>
+              </div>
+              <div class="tool-chip">
+                <div class="tbox"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg></div>
+                <div class="tlabel">Fotos del producto</div>
+              </div>
+            </div>
+            <div class="nconn d2"></div>
+            <div class="nnode">
+              <div class="nbox">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+              </div>
+              <div class="ntitle">Control de calidad</div>
+              <div class="ncap">¿Ficha completa y correcta?</div>
+            </div>
+            <div class="nconn d3"></div>
+            <div class="nfork">
+              <div class="nfork-path">
+                <span class="nfork-tag yes">SÍ</span>
+                <div class="nnode">
+                  <div class="nbox live">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 6h6a4 4 0 0 1 4 4v0M7 18h6a4 4 0 0 0 4-4v0"/></svg>
+                  </div>
+                  <div class="ntitle">n8n publica</div>
+                  <div class="ncap">Sube el lote a Mercado Libre</div>
+                </div>
+              </div>
+              <div class="nfork-path">
+                <span class="nfork-tag no">NO</span>
+                <div class="nnode">
+                  <div class="nbox">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </div>
+                  <div class="ntitle">Revisión</div>
+                  <div class="ncap">Se corrige y vuelve al flujo</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SLIDE 5: EL EQUIPO ─── -->
+  <section class="slide" id="s5">
+    <div class="inner">
+      <div class="eyebrow"><span class="idx">05</span>&nbsp;· Quién lo ejecuta</div>
+      <h2 class="display">Nahuel&nbsp;+&nbsp;Francisco.</h2>
+      <p class="lead">Dos roles, un objetivo: dejar el sistema publicando solo.</p>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="avatar">N</div>
+          <div class="card-name">Nahuel</div>
+          <div class="card-role">Operador → Responsable del sistema</div>
+          <div class="card-spec">
+            <div class="row"><span class="k">Rol actual</span><span class="v">Ya publica en ML</span></div>
+            <div class="row"><span class="k">Evolución</span><span class="v">Aprende a manejar el sistema de <b>publicación masiva</b></span></div>
+            <div class="row"><span class="k">Resultado</span><span class="v">El equipo deja de cargar todo a mano</span></div>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="avatar" style="font-size:15px;">FR</div>
+          <div class="card-name">Francisco</div>
+          <div class="card-role" style="color:var(--blue);">Capacidad externa · Suscripción</div>
+          <div class="card-spec">
+            <div class="row"><span class="k">Origen</span><span class="v">Accenture · Mercado Libre</span></div>
+            <div class="row"><span class="k">Cadencia</span><span class="v"><b>Martes y jueves</b> — sesiones virtuales con Nahuel</span></div>
+            <div class="row"><span class="k">Modelo</span><span class="v">Se paga mientras se usa — <b>no es empleado</b></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SLIDE 6: PRIMER PAQUETE ─── -->
+  <section class="slide" id="s6">
+    <div class="inner">
+      <div class="eyebrow"><span class="idx">06</span>&nbsp;· Primer movimiento</div>
+      <h2 class="display">582 SKU en 4 semanas.</h2>
+      <p class="lead">Arrancamos con <b>Bilstein, Victor Reinz y Elring</b> — stock verificado físicamente contra inventario.</p>
+      <div class="hero-stat">
+        <span class="overline">DATASET // PRIMER LOTE</span>
+        <span class="big count">582</span>
+        <span class="unit">SKU&nbsp;·&nbsp;~19.650 unidades en stock</span>
+        <div class="scan-sweep" data-scan></div>
+      </div>
+      <div class="compare">
+        <div class="ccard before">
+          <div class="lbl">Ritmo manual</div>
+          <div class="big">~6 meses</div>
+          <div class="sub">para publicar estas 582 SKU</div>
+        </div>
+        <div class="compare-arrow">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+        <div class="ccard after">
+          <div class="lbl">Con el sistema</div>
+          <div class="big">4 sem.</div>
+          <div class="sub">todo en producción en Mercado Libre</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SLIDE 7: LA MAGNITUD ─── -->
+  <section class="slide" id="s7">
+    <div class="inner">
+      <div class="eyebrow"><span class="idx">07</span>&nbsp;· El tamaño de la oportunidad</div>
+      <h2 class="display">6.200 SKU esperando.</h2>
+      <div class="hero-stat">
+        <span class="overline">INVENTARIO TOTAL // CATÁLOGO COMPLETO</span>
+        <span class="big green count">6.200</span>
+        <span class="unit">SKU&nbsp;·&nbsp;~96.000 unidades en inventario</span>
+        <div class="scan-sweep" data-scan></div>
+      </div>
+      <p class="lead" style="margin-top:24px;">Escalar la publicación en ML no es una mejora operativa más. <b>Es la única forma de monetizar el catálogo completo.</b></p>
+      <div class="stat-duo">
+        <div class="stat-box">
+          <div class="lbl">Sin el sistema</div>
+          <div class="val">5+ años</div>
+          <div class="sub">a mano, a ritmo actual</div>
+        </div>
+        <div class="stat-box highlight">
+          <div class="lbl">Con el sistema</div>
+          <div class="val">~6 meses</div>
+          <div class="sub">para publicar todo el catálogo</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SLIDE 8: EL MODELO ECONÓMICO ─── -->
+  <section class="slide" id="s8">
+    <div class="inner">
+      <div class="eyebrow"><span class="idx">08</span>&nbsp;· El modelo</div>
+      <h2 class="display">Costo de suscripción, no de nómina.</h2>
+      <p class="lead">Francisco no es un empleado nuevo. Es capacidad externa contratada <b>por el tiempo que hace falta</b> para dejar el sistema funcionando solo.</p>
+      <div class="module">
+        <span class="module-tag">CONTRATO // FRANCISCO RODRÍGUEZ</span>
+        <div class="spec-list">
+          <div class="spec-row"><span class="k">Modelo</span><span class="v">Suscripción puntual — <b>no incorporación a la nómina</b></span></div>
+          <div class="spec-row"><span class="k">Facturación</span><span class="v">Se paga mientras se usa, se corta cuando termina</span></div>
+          <div class="spec-row"><span class="k">Entregable</span><span class="v">Sistema funcionando y publicando <b>autónomamente</b></span></div>
+          <div class="spec-row"><span class="k">Retorno</span><span class="v">Catálogo completo publicable <b>sin costo marginal adicional</b></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SLIDE 9: EL ROADMAP ─── -->
+  <section class="slide" id="s9">
+    <div class="inner">
+      <div class="eyebrow"><span class="idx">09</span>&nbsp;· El roadmap</div>
+      <h2 class="display">Tres niveles. Ya estamos en el segundo.</h2>
+      <div class="rail large">
+        <div class="rail-node-wrap done">
+          <div class="rail-node"></div>
+          <div class="rail-label">Nivel 01</div>
+          <div class="rail-title">Validar</div>
+          <div class="rail-desc">El MVP mostró que funciona.</div>
+        </div>
+        <div class="rail-connector filled"></div>
+        <div class="rail-node-wrap active">
+          <div class="rail-node"></div>
+          <div class="rail-label">Nivel 02</div>
+          <div class="rail-title">Escalar</div>
+          <div class="rail-desc">Nahuel + Francisco. 582 SKU primeras.</div>
+        </div>
+        <div class="rail-connector"></div>
+        <div class="rail-node-wrap next">
+          <div class="rail-node"></div>
+          <div class="rail-label">Nivel 03</div>
+          <div class="rail-title">Dominar</div>
+          <div class="rail-desc">Las 6.200 SKU del catálogo completo.</div>
+        </div>
+      </div>
+      <p class="lead" style="margin-top:36px;">Con el sistema en marcha, las 582 SKU del primer lote dejan de ser un cuello de botella — y el camino queda armado para <b>todo el catálogo</b>.</p>
+    </div>
+  </section>
+
+  <!-- ─── SLIDE 10: CIERRE ─── -->
+  <section class="slide" id="s10">
+    <div class="inner">
+      <div class="eyebrow"><span class="idx">10</span>&nbsp;· Qué sigue</div>
+      <h2 class="display">Dos movimientos. Una semana.</h2>
+      <div class="checklist">
+        <div class="chk done"><span class="dot"></span><span class="txt">Marco de trabajo con <b>Francisco</b> cerrado.</span></div>
+        <div class="chk next"><span class="dot"></span><span class="txt"><b>Nahuel</b> arranca las sesiones fijas (martes y jueves).</span></div>
+        <div class="chk"><span class="dot"></span><span class="txt">Primer lote — <b>Bilstein, Victor Reinz y Elring</b> — publicando en 4 semanas.</span></div>
+        <div class="chk"><span class="dot"></span><span class="txt">Con la primera tanda validada, vamos por <b>el catálogo completo</b>.</span></div>
+      </div>
+      <div class="closing-line">El catálogo ya existe.<br>El sistema lo pone a vender.</div>
+      <div class="footer-tag"><b>Hotic.</b> powered · Owner Brief · 2025</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ─── Stars canvas ─── */
+(function(){
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+  const STAR_COUNT = 160;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function init(){
+    resize();
+    stars = Array.from({length: STAR_COUNT}, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.3 + .2,
+      o: Math.random() * .5 + .1,
+      s: (Math.random() - .5) * .04,
+      vy: Math.random() * .06 + .01,
+    }));
+  }
+
+  let mx = 0, my = 0;
+  if(!reduceMotion){
+    window.addEventListener('mousemove', e => { mx = (e.clientX/window.innerWidth-.5); my = (e.clientY/window.innerHeight-.5); }, {passive:true});
+  }
+
+  let raf;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const offX = mx * -18, offY = my * -12;
+    stars.forEach(s => {
+      if(!reduceMotion) s.y -= s.vy;
+      if(s.y < -2) s.y = H+2;
+      ctx.beginPath();
+      ctx.arc(s.x + offX, s.y + offY, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(200,210,255,${s.o})`;
+      ctx.fill();
+    });
+    raf = requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); }, {passive:true});
+  init();
+  if(!reduceMotion){ draw(); } else {
+    // static render
+    stars.forEach(s => {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(200,210,255,${s.o})`;
+      ctx.fill();
+    });
+  }
+})();
+
+/* ─── Slide engine ─── */
+const wrap = document.getElementById('wrap');
+const progress = document.getElementById('progress');
+const cnum = document.getElementById('cnum');
+const counterEl = document.getElementById('counter');
+const slides = document.querySelectorAll('.slide');
+const navUp = document.getElementById('navUp');
+const navDown = document.getElementById('navDown');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let currentIndex = 1;
+
+function updateNav(){
+  navUp.disabled = currentIndex <= 1;
+  navDown.disabled = currentIndex >= slides.length;
+}
+
+function bumpCounter(){
+  counterEl.classList.add('bump');
+  clearTimeout(bumpCounter._t);
+  bumpCounter._t = setTimeout(() => counterEl.classList.remove('bump'), 420);
+}
+
+function animateCount(el){
+  const raw = el.textContent.trim().replace(/\./g,'');
+  const target = parseInt(raw.replace(/[^\d]/g,''), 10);
+  if(!target) return;
+  if(reduceMotion){ el.textContent = target.toLocaleString('es-AR'); return; }
+  const duration = 1200;
+  const t0 = performance.now();
+  function step(now){
+    const p = Math.min((now - t0)/duration, 1);
+    const eased = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.round(target * eased).toLocaleString('es-AR');
+    if(p < 1){ requestAnimationFrame(step); }
+  }
+  requestAnimationFrame(step);
+}
+
+wrap.addEventListener('scroll', () => {
+  const max = wrap.scrollHeight - wrap.clientHeight;
+  progress.style.width = (max > 0 ? (wrap.scrollTop/max)*100 : 0) + '%';
+}, {passive:true});
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      const idx = Array.from(slides).indexOf(e.target) + 1;
+      if(idx !== currentIndex){ currentIndex = idx; bumpCounter(); }
+      cnum.textContent = String(currentIndex).padStart(2,'0');
+      updateNav();
+      if(!e.target.classList.contains('in-view')){
+        e.target.classList.add('in-view');
+        e.target.querySelectorAll('.count').forEach(animateCount);
+        e.target.querySelectorAll('[data-scan]').forEach(el => {
+          requestAnimationFrame(() => el.classList.add('run'));
+        });
+      }
+    }
+  });
+}, {threshold: 0.4, root: wrap});
+
+slides.forEach(s => io.observe(s));
+updateNav();
+
+navUp.addEventListener('click', () => {
+  if(currentIndex > 1) slides[currentIndex-2].scrollIntoView({behavior:'smooth', block:'start'});
+});
+navDown.addEventListener('click', () => {
+  if(currentIndex < slides.length) slides[currentIndex].scrollIntoView({behavior:'smooth', block:'start'});
+});
+window.addEventListener('keydown', ev => {
+  if(['ArrowDown','PageDown',' '].includes(ev.key)){ ev.preventDefault(); navDown.click(); }
+  else if(['ArrowUp','PageUp'].includes(ev.key)){ ev.preventDefault(); navUp.click(); }
+  else if(ev.key === 'Home'){ ev.preventDefault(); slides[0].scrollIntoView({behavior:'smooth'}); }
+  else if(ev.key === 'End'){ ev.preventDefault(); slides[slides.length-1].scrollIntoView({behavior:'smooth'}); }
+});
+
+/* Module 3D tilt — fine pointer only */
+if(!reduceMotion && window.matchMedia('(pointer:fine)').matches){
+  document.querySelectorAll('.module,.team-card').forEach(mod => {
+    let raf = null;
+    mod.addEventListener('mousemove', ev => {
+      const r = mod.getBoundingClientRect();
+      const px = (ev.clientX - r.left)/r.width - .5;
+      const py = (ev.clientY - r.top)/r.height - .5;
+      if(raf) return;
+      raf = requestAnimationFrame(() => {
+        mod.style.transform = `perspective(1000px) rotateX(${(-py*3).toFixed(2)}deg) rotateY(${(px*3).toFixed(2)}deg)`;
+        raf = null;
+      });
+    });
+    mod.addEventListener('mouseleave', () => { mod.style.transform = ''; });
+  });
+}
+</script>
+</body>
+</html>
