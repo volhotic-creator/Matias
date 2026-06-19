@@ -459,190 +459,182 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 .slide.in .cc-arrow { opacity: 1; transform: scale(1); }
 
 /* ─────────────────────────────────────────
-   PIPELINE (S4)
+   PIPELINE (S4) — rediseño visual
 ───────────────────────────────────────── */
-.pipeline-wrap {
-  margin-top: 16px;
-  border: 1px solid var(--red-l); border-radius: 12px;
-  background: #07060b;
-  background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
-  background-size: 22px 22px;
-  padding: 28px 20px 20px; position: relative; overflow: hidden;
+.pip-wrap {
+  margin-top: 20px;
+  border: 1px solid var(--red-l); border-radius: 14px;
+  background: #06050a;
+  background-image: radial-gradient(rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size: 20px 20px;
+  padding: 0; position: relative; overflow: hidden;
 }
-.pipeline-wrap::before {
+.pip-wrap::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% -10%, rgba(232,53,26,.08), transparent 60%);
-  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(232,53,26,.07), transparent 55%);
+  pointer-events: none; z-index: 0;
 }
-.pip-tag {
-  position: absolute; top: -1px; left: 24px;
-  background: #07060b; padding: 0 10px;
+.pip-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,.06);
+  position: relative; z-index: 1;
+}
+.pip-header-tag {
   font-family: var(--mono); font-size: 10px; letter-spacing: .14em;
   color: var(--red); text-transform: uppercase; font-weight: 700;
 }
-
-/* pipeline flow */
-.pip-flow {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  gap: 0; align-items: start;
-  min-width: 0;
+.pip-header-status {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 10px; color: var(--faint);
 }
-@media (max-width: 720px) {
-  .pip-flow { grid-template-columns: 1fr; }
-  .pip-arrow-col { flex-direction: row !important; padding: 8px 0; justify-content: center; }
-  .pip-conn-line { width: 48px !important; height: 1px !important; background: linear-gradient(90deg, var(--red-l), var(--blue-l)) !important; }
+.pip-header-status .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+  animation: gpulse 2.4s ease infinite;
 }
 
-.pip-col { display: flex; flex-direction: column; gap: 10px; }
+/* nodes row */
+.pip-nodes {
+  display: flex; align-items: center; gap: 0;
+  padding: 20px 20px 0; position: relative; z-index: 1;
+}
 
-/* input nodes */
-.pip-node {
+/* input stack */
+.pip-inputs-stack { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+.pip-col-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--faint); margin-bottom: 4px;
+}
+.pip-card {
   border: 1px solid var(--line); border-radius: 8px;
-  background: rgba(255,255,255,.03); padding: 14px 16px;
-  display: flex; align-items: center; gap: 12px;
-  cursor: pointer; position: relative; overflow: hidden;
-  transition: border-color .22s, box-shadow .22s, transform .2s var(--ease-out);
+  background: rgba(255,255,255,.03); padding: 11px 14px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s, transform .18s var(--ease-out);
+  position: relative;
 }
-.pip-node:hover, .pip-node.open {
-  border-color: var(--red-l);
-  box-shadow: 0 0 0 3px var(--red-s);
-  transform: translateX(4px);
+.pip-card:hover { border-color: var(--red-l); box-shadow: 0 0 0 3px var(--red-s); transform: scale(1.02); }
+.pip-card.active { border-color: var(--red-l); box-shadow: 0 0 0 3px var(--red-s); }
+.pip-card .pc-icon {
+  width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
-.pip-node .ni-icon {
-  width: 36px; height: 36px; border-radius: 7px;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+.pip-card.xlsx .pc-icon { background: rgba(30,170,90,.12); border: 1px solid rgba(30,170,90,.28); color: #1eaa5a; }
+.pip-card.png  .pc-icon { background: var(--blue-s); border: 1px solid var(--blue-l); color: var(--blue); }
+.pip-card .pc-name { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--white); }
+.pip-card .pc-sub  { font-family: var(--mono); font-size: 10px; color: var(--faint); margin-top: 1px; }
+.pip-card .pc-badge {
+  margin-left: auto; font-family: var(--mono); font-size: 9.5px; padding: 2px 7px;
+  border-radius: 3px; font-weight: 700; flex-shrink: 0;
 }
-.pip-node.xlsx .ni-icon { background: rgba(30,170,90,.12); border: 1px solid rgba(30,170,90,.28); color: #1eaa5a; }
-.pip-node.png  .ni-icon { background: var(--blue-s); border: 1px solid var(--blue-l); color: var(--blue); }
-.pip-node .ni-text { flex: 1; }
-.pip-node .ni-name { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--white); }
-.pip-node .ni-sub  { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 2px; }
-.pip-node .ni-badge {
-  font-family: var(--mono); font-size: 10px; padding: 3px 8px;
-  border-radius: 4px; font-weight: 700; flex-shrink: 0;
-}
-.pip-node.xlsx .ni-badge { background: rgba(30,170,90,.12); color: #1eaa5a; border: 1px solid rgba(30,170,90,.25); }
-.pip-node.png  .ni-badge { background: var(--blue-s); color: var(--blue); border: 1px solid var(--blue-l); }
+.pip-card.xlsx .pc-badge { background: rgba(30,170,90,.12); color: #1eaa5a; border: 1px solid rgba(30,170,90,.25); }
+.pip-card.png  .pc-badge { background: var(--blue-s); color: var(--blue); border: 1px solid var(--blue-l); }
 
-/* expandable detail */
-.pip-expand {
-  max-height: 0; overflow: hidden; opacity: 0;
-  transition: max-height .38s var(--ease-expo), opacity .28s ease, padding .28s ease;
-  font-family: var(--mono); font-size: 11px; color: var(--faint); line-height: 1.7;
-  background: rgba(255,255,255,.02);
-  border: 1px solid transparent; border-top: none;
-  border-radius: 0 0 8px 8px;
+/* flow arrows */
+.pip-arrow {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  flex: 0 0 52px; padding: 0 4px;
 }
-.pip-expand.open {
-  max-height: 100px; opacity: 1;
-  padding: 10px 16px 12px;
-  border-color: var(--red-l);
-}
-.pip-expand code { color: var(--red); font-size: 10.5px; }
-
-/* arrow connector */
-.pip-arrow-col {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 0 8px; gap: 2px;
-}
-.pip-conn-line {
-  width: 36px; height: 1px;
+.pip-arrow-line {
+  width: 100%; height: 1px;
   background: linear-gradient(90deg, var(--red-l), var(--blue-l));
-  position: relative; overflow: visible;
+  position: relative;
 }
-.pip-conn-line::after {
+.pip-arrow-line::after {
   content: ''; position: absolute; top: 50%; left: 0;
   transform: translate(-50%, -50%);
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--red); box-shadow: 0 0 8px var(--red-g);
-  opacity: 0;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--red); box-shadow: 0 0 6px var(--red-g); opacity: 0;
 }
-.slide.in .pip-conn-line::after {
-  animation: flowdot 2.2s var(--ease-out) infinite;
-}
-.slide.in .pip-conn-line.d1::after { animation-delay: .8s; }
-@keyframes flowdot {
-  0%   { left: 0%; opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { left: 100%; opacity: 0; }
-}
-.pip-chevron { color: var(--blue-l); font-size: 13px; }
+.slide.in .pip-arrow-line::after { animation: flowdot 2s ease infinite; }
+.slide.in .pip-arrow-line.d1::after { animation-delay: .9s; }
+@keyframes flowdot { 0%{left:0%;opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{left:100%;opacity:0;} }
+.pip-arrow-tip { color: var(--blue-l); font-size: 12px; line-height: 1; margin-top: -1px; }
 
-/* process node */
-.pip-process {
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
+/* claude node */
+.pip-claude {
+  flex: 0 0 auto; min-width: 150px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
   border: 1px solid var(--red-l); border-radius: 12px;
-  background: var(--red-s); padding: 24px 20px; text-align: center;
-  box-shadow: 0 0 32px rgba(232,53,26,.09);
-  transition: box-shadow .3s;
+  background: rgba(232,53,26,.06); padding: 18px 16px;
+  box-shadow: 0 0 28px rgba(232,53,26,.08);
 }
-.pip-process:hover { box-shadow: 0 0 48px rgba(232,53,26,.15); }
-.pip-process .pp-icon {
-  width: 52px; height: 52px; border-radius: 12px;
+.pip-claude .cl-icon {
+  width: 44px; height: 44px; border-radius: 10px;
   background: rgba(232,53,26,.1); border: 1px solid var(--red-l);
   display: flex; align-items: center; justify-content: center;
   animation: breathe 2.8s ease infinite;
 }
-@keyframes breathe {
-  0%,100%{box-shadow:0 0 0 0 rgba(232,53,26,.3);}
-  50%{box-shadow:0 0 0 12px rgba(232,53,26,0);}
-}
-.pip-process .pp-name { font-weight: 700; font-size: 15px; color: var(--white); }
-.pip-process .pp-cap  { font-family: var(--mono); font-size: 11px; color: var(--dim); line-height: 1.5; }
-.pip-process .pp-status {
-  font-family: var(--mono); font-size: 10px; color: var(--red); letter-spacing: .12em;
-  text-transform: uppercase; margin-top: 2px;
-}
+@keyframes breathe { 0%,100%{box-shadow:0 0 0 0 rgba(232,53,26,.3);}50%{box-shadow:0 0 0 10px rgba(232,53,26,0);} }
+.pip-claude .cl-name { font-weight: 700; font-size: 14px; color: var(--white); }
+.pip-claude .cl-cap  { font-family: var(--mono); font-size: 10px; color: var(--dim); line-height: 1.5; }
+.pip-claude .cl-status { font-family: var(--mono); font-size: 9.5px; color: var(--red); letter-spacing: .1em; text-transform: uppercase; }
 
 /* output col */
-.pip-output-wrap { display: flex; flex-direction: column; gap: 10px; }
-.pip-fork-tag {
-  font-family: var(--mono); font-size: 10px; padding: 3px 9px;
-  border-radius: 3px; font-weight: 700; letter-spacing: .08em; align-self: flex-start;
-}
-.pip-fork-tag.yes { color: var(--green); background: var(--green-s); border: 1px solid var(--green-l); }
-.pip-fork-tag.no  { color: var(--amber); background: rgba(242,171,92,.09); border: 1px solid rgba(242,171,92,.28); }
-.pip-out-node {
+.pip-output-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.pip-out-ok {
   border: 1px solid var(--green-l); border-radius: 8px;
-  background: var(--green-s); padding: 14px 16px; text-align: center;
+  background: var(--green-s); padding: 11px 14px;
   animation: outglow 2.8s ease infinite;
+  cursor: pointer; transition: box-shadow .2s;
 }
-@keyframes outglow {
-  0%,100%{box-shadow:0 0 0 0 rgba(61,220,132,.2);}
-  50%{box-shadow:0 0 0 9px rgba(61,220,132,0);}
-}
-.pip-out-node .on-name { font-weight: 700; font-size: 14px; color: var(--white); }
-.pip-out-node .on-cap  { font-family: var(--mono); font-size: 10.5px; color: var(--green); margin-top: 2px; }
-.pip-out-node .on-file {
-  font-family: var(--mono); font-size: 10px; padding: 3px 8px;
-  background: rgba(61,220,132,.12); border: 1px solid var(--green-l);
-  border-radius: 3px; color: var(--green); margin-top: 6px; display: inline-block;
-}
-.pip-reject-node {
+.pip-out-ok.active { box-shadow: 0 0 0 2px var(--green); }
+@keyframes outglow { 0%,100%{box-shadow:0 0 0 0 rgba(61,220,132,.2);}50%{box-shadow:0 0 0 8px rgba(61,220,132,0);} }
+.pip-out-err {
   border: 1px solid var(--line); border-radius: 8px;
-  background: var(--surface); padding: 12px 16px; text-align: center;
+  background: rgba(255,255,255,.025); padding: 10px 14px;
+  cursor: pointer; transition: border-color .2s;
 }
-.pip-reject-node .rn-name { font-weight: 600; font-size: 13px; color: var(--white); }
-.pip-reject-node .rn-cap  { font-family: var(--mono); font-size: 10px; color: var(--faint); margin-top: 2px; }
+.pip-out-err.active { border-color: var(--red-l); box-shadow: 0 0 0 2px var(--red-s); }
+.out-tag {
+  font-family: var(--mono); font-size: 9.5px; padding: 2px 7px;
+  border-radius: 3px; font-weight: 700; letter-spacing: .08em;
+  display: inline-block; margin-bottom: 6px;
+}
+.out-tag.yes { color: var(--green); background: rgba(61,220,132,.12); border: 1px solid var(--green-l); }
+.out-tag.no  { color: var(--amber); background: rgba(242,171,92,.09); border: 1px solid rgba(242,171,92,.28); }
+.out-name { font-weight: 700; font-size: 13px; color: var(--white); }
+.out-cap  { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-top: 2px; }
+.out-file {
+  font-family: var(--mono); font-size: 10px; padding: 2px 7px;
+  background: rgba(61,220,132,.12); border: 1px solid var(--green-l);
+  border-radius: 3px; color: var(--green); margin-top: 5px; display: inline-block;
+}
+
+/* detail panel */
+.pip-detail-panel {
+  margin: 12px 20px 0; padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,.07); border-radius: 8px;
+  background: rgba(255,255,255,.025); position: relative; z-index: 1;
+  display: none;
+}
+.pip-detail-panel.show { display: block; }
+.pdp-title {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--faint); margin-bottom: 10px; font-weight: 700;
+}
+.pdp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pdp-item { }
+.pdp-k { font-family: var(--mono); font-size: 9.5px; color: var(--faint); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
+.pdp-v { font-family: var(--mono); font-size: 12px; color: var(--dim); line-height: 1.5; }
+.pdp-v code { color: var(--red); font-size: 11px; }
+.pdp-v.go code { color: var(--green); }
 
 /* speed bar */
-.speed-bar {
-  margin-top: 28px; display: flex; align-items: center; justify-content: center;
-  gap: 20px; flex-wrap: wrap;
-  border-top: 1px solid rgba(255,255,255,.06); padding-top: 24px;
+.pip-speed {
+  margin: 12px 20px 16px; padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,.06); border-radius: 8px;
+  background: rgba(255,255,255,.02);
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; flex-wrap: wrap; position: relative; z-index: 1;
 }
-.speed-item {
-  display: flex; align-items: center; gap: 10px;
-  border-radius: 7px; padding: 10px 18px;
-  font-family: var(--mono); font-size: 13px;
+.pip-speed-item {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 12px;
 }
-.speed-item.slow { background: var(--surface); border: 1px solid var(--line); color: var(--faint); }
-.speed-item.fast { background: var(--green-s); border: 1px solid var(--green-l); color: var(--green); }
-.speed-item .si-val { font-family: var(--display); font-size: 22px; line-height: 1; }
-.speed-item .si-label { font-size: 11px; line-height: 1.4; }
-.speed-sep { color: var(--faint); font-size: 22px; font-weight: 300; }
+.pip-speed-item.slow { color: var(--faint); }
+.pip-speed-item.fast { color: var(--green); }
+.pip-speed-item .sv { font-family: var(--display); font-size: 20px; line-height: 1; }
+.pip-speed-sep { color: var(--faint); font-size: 16px; }
 
 /* ─────────────────────────────────────────
    ARCHITECTURE (S3)
@@ -1293,113 +1285,98 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
   <div class="slide-inner">
     <div class="eyebrow anim"><span class="idx">04</span>&nbsp;·&nbsp;Pipeline interactivo</div>
     <h2 class="h-section anim">De datos crudos<br>a publicación.</h2>
-    <p class="lead anim">Tocá cada entrada para ver qué contiene. Así se forma el pack que el sistema convierte en ficha lista para ML.</p>
+    <p class="lead anim">Tocá cada bloque para ver qué contiene. Así se forma el sistema que publica 582 fichas.</p>
 
-    <div class="pipeline-wrap anim">
-      <div class="pip-tag">SYS // ML.PUBLISHER · LOTE 01</div>
+    <div class="pip-wrap anim">
+      <!-- Header -->
+      <div class="pip-header">
+        <span class="pip-header-tag">SYS // ML.PUBLISHER · LOTE 01</span>
+        <span class="pip-header-status"><span class="dot"></span>EN PRODUCCIÓN</span>
+      </div>
 
-      <div class="pip-flow">
-        <!-- Inputs -->
-        <div class="pip-col" style="gap:10px;">
-          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;">Pack de entrada</div>
+      <!-- Main nodes row -->
+      <div class="pip-nodes">
 
-          <div class="pip-node xlsx" id="pi-xlsx" onclick="togglePip('xlsx')">
-            <div class="ni-icon">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-            </div>
-            <div class="ni-text">
-              <div class="ni-name">inventario.xlsx</div>
-              <div class="ni-sub">SKU · precio · stock · compatibilidad</div>
-            </div>
-            <span class="ni-badge">XLSX</span>
-          </div>
-          <div class="pip-expand" id="pe-xlsx">
-            Campos: <code>SKU · descripción · marca · precio · stock · compatibilidad</code><br>
-            Fuente: Inventario 221 — verificado físicamente en depósito.
-          </div>
+        <!-- INPUTS -->
+        <div class="pip-inputs-stack">
+          <div class="pip-col-label">Pack de entrada</div>
 
-          <div class="pip-node png" id="pi-png" onclick="togglePip('png')" style="margin-top:2px;">
-            <div class="ni-icon">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-            </div>
-            <div class="ni-text">
-              <div class="ni-name">fotos_marca/</div>
-              <div class="ni-sub">Imágenes de producto por SKU</div>
-            </div>
-            <span class="ni-badge">PNG</span>
-          </div>
-          <div class="pip-expand" id="pe-png">
-            Carpeta por marca: <code>BILSTEIN/ · VICTOR_REINZ/ · ELRING/</code><br>
-            Naming: <code>SKU_001_front.png · SKU_001_side.png</code>
-          </div>
-        </div>
-
-        <!-- Arrow 1 -->
-        <div class="pip-arrow-col">
-          <div class="pip-conn-line"></div>
-          <div class="pip-chevron">›</div>
-        </div>
-
-        <!-- Claude process -->
-        <div class="pip-col" style="align-items:center;">
-          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;text-align:center;">Procesamiento</div>
-          <div class="pip-process">
-            <div class="pp-icon">
-              <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" style="color:var(--red)"><path d="M11 2l1.7 5.4L18 9l-5.3 1.6L11 16l-1.7-5.4L4 9l5.3-1.6L11 2z"/><path d="M18 13.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z"/></svg>
-            </div>
-            <div class="pp-name">Claude AI</div>
-            <div class="pp-cap">Lee · verifica · redacta<br>cada ficha de producto</div>
-            <div class="pp-status">● procesando</div>
-          </div>
-          <div style="margin-top:14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 16px;text-align:center;width:100%;">
-            <div style="font-weight:600;font-size:13px;color:var(--white);margin-bottom:2px;">Control QA</div>
-            <div style="font-family:var(--mono);font-size:10.5px;color:var(--dim);">¿Ficha completa?</div>
-          </div>
-        </div>
-
-        <!-- Arrow 2 -->
-        <div class="pip-arrow-col">
-          <div class="pip-conn-line d1"></div>
-          <div class="pip-chevron">›</div>
-        </div>
-
-        <!-- Output -->
-        <div class="pip-col">
-          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;">Salida</div>
-          <div class="pip-output-wrap">
-            <div>
-              <span class="pip-fork-tag yes">OK</span>
-              <div class="pip-out-node" style="margin-top:6px;">
-                <div class="on-name">n8n publica</div>
-                <div class="on-cap">Sube a Mercado Libre</div>
-                <div class="on-file">pub_masiva.json</div>
-              </div>
+          <div class="pip-card xlsx" id="pi-xlsx" onclick="togglePip('xlsx')">
+            <div class="pc-icon">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
             </div>
             <div>
-              <span class="pip-fork-tag no">ERROR</span>
-              <div class="pip-reject-node" style="margin-top:6px;">
-                <div class="rn-name">Revisión</div>
-                <div class="rn-cap">Corrige y reintenta</div>
-              </div>
+              <div class="pc-name">inventario.xlsx</div>
+              <div class="pc-sub">582 SKUs · precio · stock · compatibilidad</div>
             </div>
+            <span class="pc-badge">XLSX</span>
+          </div>
+
+          <div class="pip-card png" id="pi-png" onclick="togglePip('png')">
+            <div class="pc-icon">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+            </div>
+            <div>
+              <div class="pc-name">fotos_marca/</div>
+              <div class="pc-sub">Imágenes por SKU · 3 marcas</div>
+            </div>
+            <span class="pc-badge">PNG</span>
+          </div>
+        </div>
+
+        <!-- ARROW 1 -->
+        <div class="pip-arrow">
+          <div class="pip-arrow-line"></div>
+          <div class="pip-arrow-tip">▶</div>
+        </div>
+
+        <!-- CLAUDE AI -->
+        <div class="pip-claude" id="pi-claude" onclick="togglePip('claude')">
+          <div class="cl-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" style="color:var(--red)"><path d="M11 2l1.7 5.4L18 9l-5.3 1.6L11 16l-1.7-5.4L4 9l5.3-1.6L11 2z"/><path d="M18 13.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z"/></svg>
+          </div>
+          <div class="cl-name">Claude AI</div>
+          <div class="cl-cap">Lee · verifica · redacta<br>cada ficha de producto</div>
+          <div class="cl-status">● procesando</div>
+        </div>
+
+        <!-- ARROW 2 -->
+        <div class="pip-arrow">
+          <div class="pip-arrow-line d1"></div>
+          <div class="pip-arrow-tip">▶</div>
+        </div>
+
+        <!-- OUTPUTS -->
+        <div class="pip-output-col">
+          <div class="pip-col-label">Salida</div>
+          <div class="pip-out-ok" id="pi-publish" onclick="togglePip('publish')">
+            <span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green);letter-spacing:.12em;">✓ OK</span>
+            <div style="font-weight:700;font-size:13px;color:var(--white);margin-top:2px;">n8n publica</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--dim);">Sube a Mercado Libre · pub_masiva.json</div>
+          </div>
+          <div class="pip-out-err" id="pi-error" onclick="togglePip('error')">
+            <span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--red);letter-spacing:.12em;">✕ ERROR</span>
+            <div style="font-weight:700;font-size:13px;color:var(--white);margin-top:2px;">Revisión</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--dim);">Corrige y reintenta automáticamente</div>
           </div>
         </div>
       </div>
 
+      <!-- Detail panel -->
+      <div class="pip-detail-panel" id="pip-detail">
+        <div id="pip-detail-content"></div>
+      </div>
+
       <!-- Speed bar -->
-      <div class="speed-bar">
-        <div class="speed-item slow">
-          <div>
-            <div class="si-val">~6 meses</div>
-            <div class="si-label">a mano · este lote</div>
-          </div>
+      <div class="pip-speed">
+        <div class="pip-speed-item slow">
+          <div class="sv">~6 meses</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--faint);">a mano · este lote</div>
         </div>
-        <div class="speed-sep">→</div>
-        <div class="speed-item fast">
-          <div>
-            <div class="si-val">4 semanas</div>
-            <div class="si-label">con la locomotora</div>
-          </div>
+        <div class="pip-speed-sep">→</div>
+        <div class="pip-speed-item fast">
+          <div class="sv">4 semanas</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--green);">con la locomotora</div>
         </div>
       </div>
     </div>
@@ -1623,15 +1600,42 @@ function toggleEye() {
 }
 
 /* ── Pipeline toggle ── */
+const pipDetails = {
+  xlsx: {
+    title: 'inventario.xlsx',
+    body: `<b>582 filas</b> — una por SKU. Campos: <code>SKU · descripción · marca · precio · stock · compatibilidad</code>.<br>
+Fuente: <b>Inventario 221</b>, verificado físicamente en depósito. Claude lee cada fila y genera el título, bullets y descripción ML sin intervención manual.`
+  },
+  png: {
+    title: 'fotos_marca/',
+    body: `Carpetas por marca: <code>BILSTEIN/</code> · <code>VICTOR_REINZ/</code> · <code>ELRING/</code>.<br>
+Naming: <code>SKU_001_front.png · SKU_001_side.png</code>. Claude valida que cada SKU tenga al menos una imagen antes de publicar — si falta, el SKU queda en cola de revisión.`
+  },
+  claude: {
+    title: 'Claude AI — Procesamiento central',
+    body: `Claude recibe el pack (fila XLSX + fotos del SKU) y ejecuta 4 pasos: <b>1)</b> Lee y normaliza los datos del inventario. <b>2)</b> Verifica que las fotos correspondan al SKU. <b>3)</b> Redacta título SEO, 5 bullets y descripción en tono técnico-comercial para ML. <b>4)</b> Devuelve JSON listo para n8n.`
+  },
+  publish: {
+    title: 'n8n publica en Mercado Libre',
+    body: `n8n recibe el JSON de Claude y llama a la API de ML con los datos de la ficha. Si ML responde <code>200 OK</code>, la publicación queda activa y se registra en el log de <code>pub_masiva.json</code>. El proceso corre en lotes de 50 SKUs para no saturar los rate limits.`
+  },
+  error: {
+    title: 'Flujo de error — revisión automática',
+    body: `Si Claude no puede completar la ficha (dato faltante, foto no encontrada, ML rechaza la publicación) el SKU entra a la cola de error con su motivo. n8n reintenta automáticamente 2 veces. Si persiste, Nahuel recibe una alerta con el detalle exacto para corregirlo manualmente.`
+  }
+};
 function togglePip(type) {
-  const exp = document.getElementById('pe-' + type);
-  const node = document.getElementById('pi-' + type);
-  const isOpen = exp.classList.contains('open');
-  document.querySelectorAll('.pip-expand').forEach(e => e.classList.remove('open'));
-  document.querySelectorAll('.pip-node').forEach(n => n.classList.remove('open'));
-  if (!isOpen) {
-    exp.classList.add('open');
-    node.classList.add('open');
+  const panel = document.getElementById('pip-detail');
+  const content = document.getElementById('pip-detail-content');
+  const card = document.getElementById('pi-' + type);
+  const isActive = card && card.classList.contains('active');
+  document.querySelectorAll('.pip-card,.pip-claude,.pip-out-ok,.pip-out-err').forEach(n => n.classList.remove('active'));
+  if (isActive) { panel.classList.remove('show'); return; }
+  if (card) card.classList.add('active');
+  const d = pipDetails[type];
+  if (d) {
+    content.innerHTML = `<b style="font-size:12px;font-family:var(--mono);color:var(--white);letter-spacing:.06em;">${d.title}</b><br><span style="font-size:12px;line-height:1.6;color:var(--dim);">${d.body}</span>`;
+    panel.classList.add('show');
   }
 }
 
@@ -1712,7 +1716,7 @@ window.addEventListener('keydown', ev => {
 
 /* ── Tilt effect on cards ── */
 if (!rm && window.matchMedia('(pointer:fine)').matches) {
-  document.querySelectorAll('.tcard, .stat-block, .pip-process').forEach(el => {
+  document.querySelectorAll('.tcard, .stat-block, .pip-claude').forEach(el => {
     let raf = null;
     el.addEventListener('mousemove', ev => {
       const b = el.getBoundingClientRect();
