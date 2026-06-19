@@ -779,6 +779,72 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 .rn-col.act .rn-desc { color: var(--dim); }
 
 /* ─────────────────────────────────────────
+   WEEK TIMELINE (S7)
+───────────────────────────────────────── */
+.weeks { display: flex; flex-direction: column; gap: 0; margin-top: 32px; }
+.week-row {
+  display: flex; align-items: stretch; gap: 0;
+  opacity: 0; transform: translateX(-16px);
+  transition: opacity .5s var(--ease-out), transform .5s var(--ease-out);
+}
+.slide.in .week-row { opacity: 1; transform: none; }
+.week-row:nth-child(1){ transition-delay: .06s; }
+.week-row:nth-child(2){ transition-delay: .18s; }
+.week-row:nth-child(3){ transition-delay: .30s; }
+.week-row:nth-child(4){ transition-delay: .42s; }
+
+.week-spine {
+  display: flex; flex-direction: column; align-items: center;
+  flex: 0 0 52px;
+}
+.week-dot {
+  width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid var(--faint); background: var(--bg);
+  margin-top: 4px; transition: transform .35s var(--ease-back);
+}
+.week-row.done  .week-dot { background: var(--blue); border-color: var(--blue); opacity: .6; }
+.week-row.act   .week-dot { background: var(--green); border-color: var(--green); box-shadow: 0 0 0 5px var(--green-s); animation: rg 3s ease infinite; }
+.slide.in .week-row.act .week-dot { transform: scale(1.2); }
+.week-row.next  .week-dot { border-style: dashed; border-color: var(--blue-l); }
+.week-spine-line {
+  flex: 1; width: 2px; background: var(--line); min-height: 16px;
+  transform-origin: top; transform: scaleY(0);
+  transition: transform .5s var(--ease-expo) .45s;
+}
+.week-row.done .week-spine-line { background: var(--blue-l); }
+.slide.in .week-spine-line { transform: scaleY(1); }
+.week-row:last-child .week-spine-line { display: none; }
+
+.week-body {
+  flex: 1; padding: 0 0 28px 8px;
+}
+.week-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--faint); font-weight: 700; margin-bottom: 6px;
+}
+.week-row.act  .week-label { color: var(--green); }
+.week-row.done .week-label { color: var(--blue); opacity: .7; }
+.week-title {
+  font-family: var(--display); font-size: clamp(28px, 4.5vw, 42px);
+  color: var(--white); line-height: 1; margin-bottom: 8px;
+}
+.week-row.done .week-title { color: var(--dim); }
+.week-items {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.week-item {
+  display: flex; align-items: baseline; gap: 10px;
+  font-size: 15px; color: var(--dim); line-height: 1.5;
+}
+.week-item::before {
+  content: '—'; font-family: var(--mono); font-size: 11px;
+  color: var(--faint); flex-shrink: 0;
+}
+.week-item b { color: var(--white); font-weight: 600; }
+.week-row.act .week-item { color: var(--dim); }
+.week-row.act .week-item b { color: var(--white); }
+
+/* ─────────────────────────────────────────
    CLOSING
 ───────────────────────────────────────── */
 .closing {
@@ -837,6 +903,82 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
   font-size: 14px;
 }
 
+/* ─────────────────────────────────────────
+   LOCK SCREEN
+───────────────────────────────────────── */
+#lockscreen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0;
+}
+#lockscreen.hidden { display: none; }
+
+.lock-mark {
+  font-family: var(--display); font-size: 56px; color: var(--red);
+  letter-spacing: .04em; margin-bottom: 8px; line-height: 1;
+}
+.lock-title {
+  font-family: var(--display); font-size: clamp(28px, 5vw, 48px);
+  color: var(--white); text-align: center; line-height: 1.05; margin-bottom: 8px;
+}
+.lock-sub {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--faint); margin-bottom: 40px;
+  text-align: center;
+}
+.lock-form {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: 100%; max-width: 340px; padding: 0 24px;
+}
+.lock-input-wrap {
+  width: 100%; position: relative;
+}
+.lock-input {
+  width: 100%; background: var(--surface);
+  border: 1px solid var(--line2); border-radius: 8px;
+  padding: 14px 48px 14px 18px;
+  font-family: var(--mono); font-size: 15px; letter-spacing: .18em;
+  color: var(--white); outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.lock-input::placeholder { color: var(--faint); letter-spacing: .1em; }
+.lock-input:focus { border-color: var(--blue-l); box-shadow: 0 0 0 3px var(--blue-s); }
+.lock-input.error { border-color: var(--red-l); box-shadow: 0 0 0 3px var(--red-s); animation: shake .4s var(--ease-out); }
+@keyframes shake {
+  0%,100%{ transform: translateX(0); }
+  20%    { transform: translateX(-8px); }
+  40%    { transform: translateX(8px); }
+  60%    { transform: translateX(-5px); }
+  80%    { transform: translateX(5px); }
+}
+.lock-eye {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--faint); cursor: pointer;
+  font-size: 16px; padding: 4px; line-height: 1;
+  transition: color .15s;
+}
+.lock-eye:hover { color: var(--dim); }
+.lock-btn {
+  width: 100%; padding: 13px;
+  background: var(--blue); border: none; border-radius: 8px;
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase; color: #fff;
+  cursor: pointer; transition: background .18s, transform .15s, box-shadow .18s;
+}
+.lock-btn:hover { background: #6aa0ff; box-shadow: 0 0 20px var(--blue-g); }
+.lock-btn:active { transform: scale(.97); }
+.lock-error {
+  font-family: var(--mono); font-size: 11px; color: var(--red);
+  letter-spacing: .1em; text-align: center; height: 16px;
+  transition: opacity .2s;
+}
+.lock-badge {
+  margin-top: 32px; font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--faint);
+  border: 1px solid var(--line); border-radius: 20px; padding: 5px 14px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .anim, .anim-left, .arch-layer, .cc, .chk, .tcard { opacity: 1 !important; transform: none !important; }
@@ -855,6 +997,27 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
   <video autoplay muted loop playsinline>
     <source src="bg.mp4" type="video/mp4">
   </video>
+</div>
+
+<!-- Lock screen -->
+<div id="lockscreen">
+  <div class="lock-mark">V</div>
+  <div class="lock-title">Owner Brief<br>Lote 01</div>
+  <div class="lock-sub">Volhotic · Autopartes · Confidencial</div>
+  <div class="lock-form">
+    <div class="lock-input-wrap">
+      <input
+        class="lock-input" id="lock-input"
+        type="password" placeholder="contraseña"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+        onkeydown="if(event.key==='Enter') unlockTry()"
+      >
+      <button class="lock-eye" id="lock-eye" onclick="toggleEye()" tabindex="-1" aria-label="Mostrar contraseña">👁</button>
+    </div>
+    <button class="lock-btn" onclick="unlockTry()">Ingresar</button>
+    <div class="lock-error" id="lock-error"></div>
+  </div>
+  <div class="lock-badge">Documento privado</div>
 </div>
 
 <!-- Mobile menu btn -->
@@ -901,11 +1064,11 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
     </a>
     <a class="sn" data-idx="6" onclick="goTo(6)">
       <span class="sn-num">07</span>
-      <div class="sn-info"><span class="sn-label">Camino</span><span class="sn-sub">La locomotora</span></div>
+      <div class="sn-info"><span class="sn-label">Timeline</span><span class="sn-sub">Semana a semana</span></div>
     </a>
     <a class="sn" data-idx="7" onclick="goTo(7)">
       <span class="sn-num">08</span>
-      <div class="sn-info"><span class="sn-label">Cierre</span><span class="sn-sub">Próximos pasos</span></div>
+      <div class="sn-info"><span class="sn-label">Cierre</span><span class="sn-sub">Arrancamos</span></div>
     </a>
   </div>
 
@@ -950,13 +1113,13 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
   <div class="slide-inner">
     <div class="eyebrow anim"><span class="idx">01</span>&nbsp;·&nbsp;Volhotic · Autopartes</div>
     <h1 class="h-display anim">
-      582&nbsp;<span class="accent">SKU.</span><br>
-      4&nbsp;semanas.<br>
-      <span class="go">Publicados.</span>
+      En&nbsp;4&nbsp;semanas,<br>
+      <span class="go">582&nbsp;SKU</span><br>
+      en&nbsp;Mercado&nbsp;<span class="accent">Libre.</span>
     </h1>
     <p class="lead anim">
-      El primer lote ya está en Mercado Libre.<br>
-      <b>Bilstein, Victor Reinz, Elring</b> — lo que a mano tomaría 6 meses, el sistema lo resolvió en 4 semanas.
+      Esto es lo que vamos a construir en las próximas cuatro semanas.<br>
+      <b>Bilstein, Victor Reinz, Elring</b> — publicados, activos, vendiendo.
     </p>
     <div class="rail anim">
       <div class="rn-col done">
@@ -970,14 +1133,14 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
         <div class="rn-dot"></div>
         <div class="rn-id">N.02</div>
         <div class="rn-name">Circulando</div>
-        <div class="rn-desc">582 SKU. Primeras vías.</div>
+        <div class="rn-desc">Próximas 4 semanas. 582 SKU.</div>
       </div>
       <div class="rn-line"></div>
       <div class="rn-col next">
         <div class="rn-dot"></div>
         <div class="rn-id">N.03</div>
         <div class="rn-name">Velocidad</div>
-        <div class="rn-desc">Siguiente lote. Catálogo completo.</div>
+        <div class="rn-desc">Catálogo completo. Siguiente lote.</div>
       </div>
     </div>
   </div>
@@ -990,28 +1153,28 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
     <div class="eyebrow anim"><span class="idx">02</span>&nbsp;·&nbsp;El cuello de botella</div>
     <h2 class="h-section anim">Sin sistema:<br><span class="hot">6 meses</span><br>para este lote.</h2>
     <p class="lead anim">
-      582 SKU a mano significaría <b>6 meses de carga manual</b>.<br>
+      Sin automatización, publicar 582 SKU a mano tomaría <b>6 meses</b>.<br>
       No es un problema de esfuerzo — es un problema de proceso.
     </p>
     <div class="stat-row anim">
       <div class="stat-block">
-        <div class="s-label">Sin automatización</div>
+        <div class="s-label">Ritmo manual actual</div>
         <div class="s-val">~100</div>
-        <div class="s-sub">SKU por mes, a ritmo manual del equipo</div>
+        <div class="s-sub">SKU por mes, carga manual del equipo</div>
       </div>
       <div class="stat-block">
-        <div class="s-label">Tiempo total estimado</div>
+        <div class="s-label">Sin sistema — este lote</div>
         <div class="s-val">6 meses</div>
-        <div class="s-sub">para publicar estos 582 SKU a mano</div>
+        <div class="s-sub">para publicar los 582 SKU a mano</div>
       </div>
       <div class="stat-block hi">
         <div class="s-label">Con el sistema</div>
         <div class="s-val">4 sem.</div>
-        <div class="s-sub">el mismo lote, ya publicado</div>
+        <div class="s-sub">el mismo resultado, en tiempo real</div>
       </div>
     </div>
     <p class="lead anim" style="margin-top:28px;">
-      La única forma de escalar el catálogo es un sistema que publique por sí solo. <b>Eso es exactamente lo que tenemos.</b>
+      <b>El sistema es la única palanca.</b> No hay otra forma de publicar a esta velocidad sin él.
     </p>
   </div>
 </section>
@@ -1257,13 +1420,13 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 <section class="slide" id="s6">
   <div class="slide-inner">
     <div class="eyebrow anim"><span class="idx">06</span>&nbsp;·&nbsp;El lote en números</div>
-    <h2 class="h-section anim">El primer<br>movimiento.</h2>
-    <p class="lead anim"><b>Bilstein, Victor Reinz, Elring</b> — stock verificado físicamente contra inventario 221.</p>
+    <h2 class="h-section anim">Lo que vamos<br>a publicar.</h2>
+    <p class="lead anim"><b>Bilstein, Victor Reinz, Elring</b> — stock verificado físicamente contra inventario 221. Listo para entrar al pipeline.</p>
 
     <div class="hero-stat anim">
-      <span class="hs-label">Dataset // Primer lote publicado</span>
+      <span class="hs-label">Dataset // Primer lote · objetivo 4 semanas</span>
       <span class="hs-big count go">582</span>
-      <span class="hs-unit">SKU &nbsp;·&nbsp; ~19.650 unidades en stock</span>
+      <span class="hs-unit">SKU &nbsp;·&nbsp; ~19.650 unidades disponibles en stock</span>
       <div class="sweep" data-scan></div>
     </div>
 
@@ -1279,57 +1442,88 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
       <div class="cc after">
         <div class="cc-lbl">Con la locomotora</div>
         <div class="cc-val">4 sem.</div>
-        <div class="cc-sub">en producción en Mercado Libre</div>
+        <div class="cc-sub">objetivo: en producción en Mercado Libre</div>
       </div>
     </div>
 
     <p class="subtext anim" style="margin-top:24px;">
-      El lote está activo. Esto no es una proyección — <b>ya sucedió</b>.
+      Los datos están listos. El sistema está armado. <b>Arrancamos.</b>
     </p>
   </div>
 </section>
 
-<!-- ── S7: EL CAMINO ─────────────── -->
+<!-- ── S7: TIMELINE ─────────────── -->
 <section class="slide" id="s7">
   <div class="slide-inner">
-    <div class="eyebrow anim"><span class="idx">07</span>&nbsp;·&nbsp;La locomotora</div>
-    <h2 class="h-section anim">Circulando.<br>¿Qué viene ahora?</h2>
-    <p class="lead anim">El primer lote validó el sistema completo. El siguiente paso es escalar al resto del catálogo con la misma infraestructura.</p>
+    <div class="eyebrow anim"><span class="idx">07</span>&nbsp;·&nbsp;Plan de ejecución</div>
+    <h2 class="h-section anim">4 semanas.<br>Semana<br>a semana.</h2>
 
-    <div class="stat-row anim">
-      <div class="stat-block">
-        <div class="s-label">Lote 01 — ahora</div>
-        <div class="s-val">582 SKU</div>
-        <div class="s-sub">Bilstein · Victor Reinz · Elring — activo</div>
-      </div>
-      <div class="stat-block hi">
-        <div class="s-label">Catálogo total — potencial</div>
-        <div class="s-val">6.200 SKU</div>
-        <div class="s-sub">misma infraestructura, más lotes</div>
-      </div>
-    </div>
+    <div class="weeks anim">
 
-    <div class="rail anim" style="margin-top:36px;">
-      <div class="rn-col done">
-        <div class="rn-dot"></div>
-        <div class="rn-id">N.01</div>
-        <div class="rn-name">Encendido</div>
-        <div class="rn-desc">MVP validado. La locomotora arrancó.</div>
+      <div class="week-row done">
+        <div class="week-spine">
+          <div class="week-dot"></div>
+          <div class="week-spine-line"></div>
+        </div>
+        <div class="week-body">
+          <div class="week-label">Semana 1</div>
+          <div class="week-title">Setup y datos</div>
+          <div class="week-items">
+            <div class="week-item">Sesión inicial con <b>Francisco</b> — martes y jueves</div>
+            <div class="week-item">XLSX de <b>Bilstein, Victor Reinz, Elring</b> procesados</div>
+            <div class="week-item">Pipeline configurado y validado con datos reales</div>
+          </div>
+        </div>
       </div>
-      <div class="rn-line done"></div>
-      <div class="rn-col act">
-        <div class="rn-dot"></div>
-        <div class="rn-id">N.02</div>
-        <div class="rn-name">Circulando</div>
-        <div class="rn-desc">582 SKU publicados en 4 semanas.</div>
+
+      <div class="week-row act">
+        <div class="week-spine">
+          <div class="week-dot"></div>
+          <div class="week-spine-line"></div>
+        </div>
+        <div class="week-body">
+          <div class="week-label">Semana 2</div>
+          <div class="week-title">Primer batch</div>
+          <div class="week-items">
+            <div class="week-item"><b>Claude AI</b> procesa los primeros SKU del lote</div>
+            <div class="week-item">QA automático — fichas completas y correctas</div>
+            <div class="week-item">Primeras publicaciones subidas a <b>Mercado Libre</b></div>
+          </div>
+        </div>
       </div>
-      <div class="rn-line"></div>
-      <div class="rn-col next">
-        <div class="rn-dot"></div>
-        <div class="rn-id">N.03</div>
-        <div class="rn-name">Velocidad</div>
-        <div class="rn-desc">Más lotes. Catálogo completo.</div>
+
+      <div class="week-row next">
+        <div class="week-spine">
+          <div class="week-dot"></div>
+          <div class="week-spine-line"></div>
+        </div>
+        <div class="week-body">
+          <div class="week-label">Semana 3</div>
+          <div class="week-title">Escalar y corregir</div>
+          <div class="week-items">
+            <div class="week-item">Resto del lote corriendo en el pipeline</div>
+            <div class="week-item"><b>Nahuel</b> opera el sistema de forma autónoma</div>
+            <div class="week-item">Ajustes de fichas según feedback de ML</div>
+          </div>
+        </div>
       </div>
+
+      <div class="week-row next">
+        <div class="week-spine">
+          <div class="week-dot"></div>
+          <div class="week-spine-line"></div>
+        </div>
+        <div class="week-body">
+          <div class="week-label">Semana 4</div>
+          <div class="week-title">582 SKU activos</div>
+          <div class="week-items">
+            <div class="week-item">Catálogo completo del lote <b>publicado y activo</b></div>
+            <div class="week-item">Review final con Francisco — sistema entregado</div>
+            <div class="week-item">Definir <b>próximo lote</b> y escalar</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1337,13 +1531,17 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
 <!-- ── S8: CIERRE ─────────────────── -->
 <section class="slide" id="s8">
   <div class="slide-inner">
-    <div class="eyebrow anim"><span class="idx">08</span>&nbsp;·&nbsp;Próximos pasos</div>
-    <h2 class="h-section anim">Dos movimientos.<br>Una semana.</h2>
+    <div class="eyebrow anim"><span class="idx">08</span>&nbsp;·&nbsp;Arrancamos</div>
+    <h2 class="h-section anim">Esto arranca<br>esta semana.</h2>
 
     <div class="cklist">
       <div class="chk done">
         <div class="chk-dot"></div>
         <span class="chk-text">Marco de trabajo con <b>Francisco</b> cerrado.</span>
+      </div>
+      <div class="chk done">
+        <div class="chk-dot"></div>
+        <span class="chk-text">Sistema armado y validado. <b>Pipeline listo.</b></span>
       </div>
       <div class="chk next">
         <div class="chk-dot"></div>
@@ -1351,24 +1549,57 @@ body { font-family: var(--body); color: var(--white); -webkit-font-smoothing: an
       </div>
       <div class="chk todo">
         <div class="chk-dot"></div>
-        <span class="chk-text">Primer lote <b>Bilstein, Victor Reinz y Elring</b> — activo en Mercado Libre.</span>
+        <span class="chk-text"><b>Semana 1</b> — XLSX procesados, pipeline con datos reales.</span>
       </div>
       <div class="chk todo">
         <div class="chk-dot"></div>
-        <span class="chk-text">Primer lote validado → definir <b>próximo lote</b> y escalar.</span>
+        <span class="chk-text"><b>Semana 4</b> — 582 SKU publicados, activos, vendiendo.</span>
       </div>
     </div>
 
     <div class="closing anim">
       La locomotora se encendió.<br>Ahora le ponemos velocidad.
     </div>
-    <div class="footer-mono anim"><b>Hotic.</b> · Owner Brief · Primer Lote · 2025</div>
+    <div class="footer-mono anim"><b>Hotic.</b> · Owner Brief · Lote 01 · 4 semanas</div>
   </div>
 </section>
 
 </div><!-- /wrap -->
 
 <script>
+/* ── Lock screen ── */
+(function() {
+  const KEY = 'peta';
+  const ls = document.getElementById('lockscreen');
+  if (sessionStorage.getItem('vl_ok') === '1') { ls.classList.add('hidden'); return; }
+  document.getElementById('lock-input').focus();
+})();
+
+function unlockTry() {
+  const inp = document.getElementById('lock-input');
+  const err = document.getElementById('lock-error');
+  if (inp.value === 'peta') {
+    sessionStorage.setItem('vl_ok', '1');
+    document.getElementById('lockscreen').classList.add('hidden');
+    err.textContent = '';
+  } else {
+    inp.classList.remove('error');
+    void inp.offsetWidth;
+    inp.classList.add('error');
+    err.textContent = 'Contraseña incorrecta.';
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('error'), 500);
+  }
+}
+
+function toggleEye() {
+  const inp = document.getElementById('lock-input');
+  const eye = document.getElementById('lock-eye');
+  if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
+  else { inp.type = 'password'; eye.textContent = '👁'; }
+  inp.focus();
+}
+
 /* ── Pipeline toggle ── */
 function togglePip(type) {
   const exp = document.getElementById('pe-' + type);
